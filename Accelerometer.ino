@@ -23,7 +23,7 @@
 
 //Directions
 
-bool UP, DOWN, LEFT, RIGHT = false;
+bool UP = false, DOWN = false, LEFT = false, RIGHT = false;
 
 static byte buffer[ADXL345_DATA_SIZE];
 static double rawData[ADXL345_AXIS_COUNT];
