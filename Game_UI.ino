@@ -1,20 +1,29 @@
 #include <stdbool.h>
 #include <string.h>
 
-static const uint32_t SwitchCount = 2;
-static const uint32_t ButtonCount = 2;
-static const uint32_t Switches[SwitchCount] = { PA_7, PA_6 };
-static const uint32_t Buttons[ButtonCount] = { PD_2, PE_0 };
+#include <FillPat.h>
+#include <LaunchPad.h>
+#include <OrbitBoosterPackDefs.h>
+#include <OrbitOled.h>
+#include <OrbitOledChar.h>
+#include <OrbitOledGrph.h>
 
-static const size_t dimensionsCount = 2;
-static const int MaxMapSize[dimensionsCount] = {1280,320};
-static int CursorPos[dimensionsCount] = {0};
 
-static struct GameMap {
-  int x_pos;
-  int y_pos;
-  int diameter;
-} currentMap;
+#define SWITCH_COUNT        2
+#define BUTTON_COUNT        2
+#define MAX_SCREEN_PIXEL_X  128
+#define MAX_SCREEN_PIXEL_Y  32
+#define CHAR_PIXEL          8
+#define MAX_ROOM_SIZE_X     16
+#define MAX_ROOM_SIZE_Y     4
+
+static const uint32_t Switches[SWITCH_COUNT] = { PA_7, PA_6 };
+static const uint32_t Buttons[BUTTON_COUNT] = { PD_2, PE_0 };
+
+static int CursorPos_x = 8, CursorPos_y = 8;      //pos on screen (pixels)
+static int GridPos_X = 1, GridPos_Y = 1;          //pos on grid (each point is 8 pixels);
+
+//static char gameMap[MAX_MAP_SIZE_X][MAX_MAP_SIZE_Y] = {};
 
 static enum GameMenu {
   Welcome,
@@ -34,10 +43,6 @@ static struct InputState
   float               potentiometer;
 } gameInputState;
 
-static void MapGenerate() {
-  
-}
-
 
 //initialize oled screen
 void GameUIInit() {
@@ -46,37 +51,84 @@ void GameUIInit() {
   OrbitOledClearBuffer();
   OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
   OrbitOledSetDrawMode(modOledSet);
-
-
   
   Serial.println("Game UI Initialzied");
-  for(int i = 0; i < SwitchCount; ++i )
+  for(int i = 0; i < SWITCH_COUNT; ++i )
     pinMode(Switches[i], INPUT);
-  for(int i = 0; i < ButtonCount; ++i )
+  for(int i = 0; i < BUTTON_COUNT; ++i )
     pinMode(Buttons[i], INPUT);    
 }
 
+static void MapGenerate() {
+
+  
+}
+
+static void drawRoom() {
+  char roomMap [MAX_ROOM_SIZE_Y][MAX_ROOM_SIZE_X] = 
+  { {'-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'},
+    {'|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'},
+    {'|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'},
+    {'-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'}
+  };
+
+  for (int i = 0; i < MAX_ROOM_SIZE_X; i++ ) {
+    for (int j = 0; j < MAX_ROOM_SIZE_Y; j++) {
+      OrbitOledMoveTo(i*CHAR_PIXEL,j*CHAR_PIXEL);
+      OrbitOledDrawChar(roomMap[j][i]);
+    }
+  }
+  
+}
+
 static void handlePlayerMovement() {
-  OrbitOledMoveTo(CursorPos[0],CursorPos[1]);
+  GridPos_X /= CursorPos_x;
+  GridPos_Y /= CursorPos_y;
+  OrbitOledMoveTo(CursorPos_x,CursorPos_y);
   OrbitOledDrawChar('@');
   
   if(gameInputState.buttons[0].isRising) {
-    delay(50);
     OrbitOledClear();
-    CursorPos[0]+=5;
+    if (!gameInputState.switches[0]) {
+      GridPos_X++;
+      Serial.println("Move Right!");
+    }
+    else {
+      GridPos_X--;
+      Serial.println("Move Left!");
+    }
   }
 
   if(gameInputState.buttons[1].isRising) {
-    delay(50);
-    OrbitOledClear();
-    CursorPos[1]+=5;
+    OrbitOledClear(); 
+    if (gameInputState.switches[1]) {
+      GridPos_y++;
+      Serial.println("Move Down!");
+    }
+    else {
+      GridPos_y--;
+      Serial.println("Move Up!");
+    }
+  }
+
+  if (CursorPos_x < CHAR_PIXEL) {
+    CursorPos_x += CHAR_PIXEL;
+  }
+  if (CursorPos_x > MAX_SCREEN_PIXEL_X-CHAR_PIXEL*2) {
+    Serial.println("TOO FAR!");
+    CursorPos_x -= CHAR_PIXEL;
+  }
+  if (CursorPos_y < CHAR_PIXEL) {
+    CursorPos_y += CHAR_PIXEL;
+  }
+  if (CursorPos_y > MAX_SCREEN_PIXEL_Y-CHAR_PIXEL*2) {
+    CursorPos_y -= CHAR_PIXEL;
   }
 
 
   
   /*
   if(gameInputState.buttons[1].isRising) {
-        OrbitOledClearBuffer();
         OrbitOledClear();
         OrbitOledMoveTo(pos[0],++pos[1]);
         handleGameUI();
@@ -91,8 +143,7 @@ static void handlePageWelcome(){
   OrbitOledDrawRect(5, 5);
   OrbitOledFillRect(5, 5);
   */
-
-  int a = 0;
+  
     
   OrbitOledMoveTo(25, 0);
   OrbitOledDrawString("---Rogue---");
@@ -103,18 +154,14 @@ static void handlePageWelcome(){
   OrbitOledMoveTo(0, 20);
   OrbitOledDrawString("BTN2 - Tutorial");
   
+  
   if(gameInputState.buttons[0].isRising) {
-    OrbitOledClearBuffer();
     OrbitOledClear();
-    OrbitOledMoveTo(0,0);
-    OrbitOledDrawChar('@');
     gameCurrentPage = Game;
     //gameUiPage = SelectPlayers;
-    
   }
 
   if(gameInputState.buttons[1].isRising) {
-    OrbitOledClearBuffer();
     OrbitOledClear();
     OrbitOledMoveTo(5,0);
     OrbitOledDrawString("Tutorial");
@@ -122,8 +169,8 @@ static void handlePageWelcome(){
   } 
 }
 
-static void GameUITick() {
-  uiInputTick();
+void GameUITick() {
+  UIInputTick();
   
   switch(gameCurrentPage)
   {
@@ -133,6 +180,7 @@ static void GameUITick() {
   case Difficulty_Selection:
     break;
   case Game:
+    drawRoom();
     handlePlayerMovement();
     break;
   default:
@@ -141,10 +189,10 @@ static void GameUITick() {
   OrbitOledUpdate();
 }
 
-static void uiInputTick() {
-  for(int i = 0; i < SwitchCount; ++i )
+static void UIInputTick() {
+  for(int i = 0; i < SWITCH_COUNT; ++i )
     gameInputState.switches[i] = digitalRead(Switches[i]);
-  for(int i = 0; i < ButtonCount; ++i )
+  for(int i = 0; i < BUTTON_COUNT; ++i )
   {
     // Only look for Rising Edge Signals.
     bool previousState = gameInputState.buttons[i].state;

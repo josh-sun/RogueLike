@@ -1,25 +1,26 @@
 #include <delay.h>
-#include <FillPat.h>
 #include <LaunchPad.h>
 #include <OrbitBoosterPackDefs.h>
-#include <OrbitOled.h>
-#include <OrbitOledChar.h>
-#include <OrbitOledGrph.h>
-#include <stdlib.h>
+
 
 
 
 
 void GameUIInit();
-void WireInit();
+void TiltDetectInit();
+void AccelerometerInit();
+
+void GameUITick();
 
 
 
 void setup() {
-    WireInit();
+
     Serial.begin(9600);
 
-    delay(100);
+    AccelerometerInit();
+    TiltDetectInit();
+
 
     GameUIInit();
 
