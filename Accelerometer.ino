@@ -21,6 +21,10 @@
 #define ADXL345_MAX_READING     255.0   // Max Value Sensor Could Read
 #define MG_LSB                  0.00390625  //conversion Factor for Full-Res Setting
 
+//Directions
+
+bool UP, DOWN, LEFT, RIGHT = false;
+
 static byte buffer[ADXL345_DATA_SIZE];
 static double rawData[ADXL345_AXIS_COUNT];
 static double offset_x, offset_y, offset_z;   //Software Offset
@@ -69,6 +73,19 @@ static void readAccelG (double *xyz) {
         if (xyz[i] > ADXL345_MAX_READING || xyz[i] < 0) xyz[i] = 0;
     }
     
+}
+//************************ Sense pitch and rolls ************************
+static void readPitchRoll(*xyz) {
+  readAccelG (*xyz);
+  double pitch, roll;
+  double limit = PI/4; //I still need to define the variables (booleans?) for up down left and right
+  pitch = (atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])) * 180.0) / PI;
+  roll = (atan2(xyz[1],(sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])) * 180.0) / PI;
+  if(pitch > limit) UP = true;
+  if(pitch < - limit) DOWN = true;
+  if(roll < limit) LEFT = true;
+  if(roll > -limit) RIGHT = true;
+  
 }
 //************************Software Offset Setter*************************
 static void setSoftwareOffset (double x, double y, double z) {
