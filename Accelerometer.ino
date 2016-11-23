@@ -1,58 +1,62 @@
-#include <Wire.h>
 #include <math.h>
 
-#define byte uint8_t
+//Forward Declarations
+void Wire_utils_init();
+void writeToI2C(byte address, byte val);
+void readFromI2C(byte address, uint32_t *buffer, int amount);
 
-//register map
-#define ADXL345_DEVICE_ADDRESS  0x1D    // Device Address
-#define ADXL345_POWER_CTL       0x2D    // Power-Saving Features Control
-#define ADXL345_DATA_FORMAT     0x31    // Data Format Control
+//Register Map
+#define ADXL345_POWER_CTL       0x2D          // Power-Saving Features Control
+#define ADXL345_DATA_FORMAT     0x31          // Data Format Control
+#define ADXL345_DATAX0          0x32          // X-Axis Data 0
+#define ADXL345_DATAX1          0x33          // X-Axis Data 1
+#define ADXL345_DATAY0          0x34          // Y-Axis Data 0
+#define ADXL345_DATAY1          0x35          // Y-Axis Data 1
+#define ADXL345_DATAZ0          0x36          // Z-Axis Data 0
+#define ADXL345_DATAZ1          0x37          // Z-Axis Data 1
 
-#define ADXL345_DATAX0          0x32    // X-Axis Data 0
-#define ADXL345_DATAX1          0x33    // X-Axis Data 1
-#define ADXL345_DATAY0          0x34    // Y-Axis Data 0
-#define ADXL345_DATAY1          0x35    // Y-Axis Data 1
-#define ADXL345_DATAZ0          0x36    // Z-Axis Data 0
-#define ADXL345_DATAZ1          0x37    // Z-Axis Data 1
+//Constants Definition
+#define ADXL345_DATA_SIZE       6             // Data Size From 6 Registers
+#define ADXL345_MAX_READING     2             // Max G Detection
+#define MG_LSB                  0.00390625    // Conversion Factor for Full-Res Setting
+#define TILT_THRESHOLD          15            // Threshold Value for Determining Tilt
 
-//constant definition
-#define ADXL345_DATA_SIZE       6       // Data Size From 6 Registers
-#define ADXL345_AXIS_COUNT      3       // Number Of Axis
-#define ADXL345_MAX_READING     2       // Max G Detection
-#define MG_LSB                  0.00390625  //conversion Factor for Full-Res Setting
-
-//Directions
-static bool UP = false, DOWN = false, LEFT = false, RIGHT = false;
-
-static uint32_t buffer[ADXL345_DATA_SIZE];
-static uint16_t rawData[ADXL345_AXIS_COUNT];
-static double offset_x, offset_y, offset_z;   //Software Offset
-
-static TwoWire myWire(0);
+static double offset_X, offset_Y, offset_Z;   // Software Offset Calibration
 
 //************************Initialization*************************
 void AccelerometerInit() {
-    myWire.begin();
-    powerOn();
-    setGRange();
+    Wire_utils_init();
+    powerOn(0x08);
+    setGRange(0x08);
     setSoftwareOffset(0.0,-0.04,0.07);
 }
 
-static void powerOn() {
-    writeToI2C(ADXL345_POWER_CTL, 0x08);
+static void powerOn(byte value) {
+    writeToI2C(ADXL345_POWER_CTL, value);
 }
 
-static void setGRange() {
-    writeToI2C(ADXL345_DATA_FORMAT, 0x08);
+static void setGRange(byte value) {
+    writeToI2C(ADXL345_DATA_FORMAT, value);
 }
 
 //************************Read Accerleration*************************
-double *get_xyz(double *xyz){
-    return readAccelG(xyz);
+
+
+void ReadAccelG (double *xyz) {
+    uint16_t rawData[3];
+    
+    readAccel(rawData);
+    
+    xyz[0] = *(int16_t*)(&rawData[0]) * MG_LSB + offset_X;
+    xyz[1] = *(int16_t*)(&rawData[1]) * MG_LSB + offset_Y;
+    xyz[2] = *(int16_t*)(&rawData[2]) * MG_LSB + offset_Z;
+
 }
 
-static void readAccel() {
-    
+static void readAccel(uint16_t *rawData) {
+
+    uint32_t buffer[ADXL345_DATA_SIZE];
+
     readFromI2C(ADXL345_DATAX0, buffer, 6);
     
     rawData[0] = (((int)buffer[1]) << 8) | buffer[0];
@@ -61,29 +65,37 @@ static void readAccel() {
     
 }
 
-static double *readAccelG (double *xyz) {
-    readAccel();
-    
-    xyz[0] = *(int16_t*)(&rawData[0]) * MG_LSB + offset_x;
-    xyz[1] = *(int16_t*)(&rawData[1]) * MG_LSB + offset_y;
-    xyz[2] = *(int16_t*)(&rawData[2]) * MG_LSB + offset_z;
-    
-    return xyz;
-}
 //************************ Sense pitch and rolls ************************
-void getPitchRoll(double *xyz) {
-  double pitch, roll;
-  double limit = 25; //I still need to define the variables (booleans?) for up down left and right
-  roll = (atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])) * 180.0) / PI;
-  pitch = (atan2(xyz[1],sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])) * 180.0) / PI;
-  if(pitch > limit) DOWN = true;
-  else DOWN = false;
-  if(pitch < - limit) UP = true;
-  else UP = false;
-  if(roll > limit) { LEFT = true;
-  }else LEFT = false;
-  if(roll < -limit) RIGHT = true;
-  else RIGHT = false;
+void calcTilt(bool *directions) {
+  double xyz[3];
+  ReadAccelG(xyz);
+  
+  double roll = (atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])) * 180.0) / PI;
+  double pitch = (atan2(xyz[1],sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])) * 180.0) / PI;
+
+  //up
+  if(pitch < -TILT_THRESHOLD) 
+    directions[0] = true;
+  else 
+    directions[0] = false;
+
+  //down
+  if(pitch > TILT_THRESHOLD) 
+    directions[1] = true;
+  else 
+    directions[1] = false;
+
+  //left  
+  if(roll > TILT_THRESHOLD)
+    directions[2] = true;
+  else 
+    directions[2] = false;
+
+  //right
+  if(roll < -TILT_THRESHOLD) 
+    directions[3] = true;
+  else 
+    directions[3] = false;
   /*
   Serial.print("Roll: ");
   Serial.print(atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])));
@@ -93,53 +105,14 @@ void getPitchRoll(double *xyz) {
 
 }
 
-bool getUpPitch () {
-  return UP;
-}
-
-bool getDownPitch() {
-  return DOWN;
-}
-
-bool getRightRoll() {
-  return RIGHT;
-}
-
-bool getLeftRoll() {
-  return LEFT;
-}
-
 //************************Software Offset Setter*************************
 static void setSoftwareOffset (double x, double y, double z) {
-    offset_x = x;
-    offset_y = y;
-    offset_z = z;
+    offset_X = x;
+    offset_Y = y;
+    offset_Z = z;
 }
 
-//********************************I2C R/W********************************
-static void writeToI2C(byte address, byte val) {
-    myWire.beginTransmission(ADXL345_DEVICE_ADDRESS);
-    myWire.write(address);
-    myWire.write(val);
-    myWire.endTransmission();
-}
 
-static void readFromI2C(byte address, uint32_t *buffer, int amount) {
-    myWire.beginTransmission(ADXL345_DEVICE_ADDRESS);
-    myWire.write(address);
-    myWire.endTransmission();
-    
-    myWire.beginTransmission(ADXL345_DEVICE_ADDRESS);
-    myWire.requestFrom(ADXL345_DEVICE_ADDRESS, amount);  // Request 6 Bytes
-    
-    int i = 0;
-    while(myWire.available()) // device may send less than requested (abnormal)
-    {
-        buffer[i] = myWire.read(); // receive a byte
-        i++;
-    }
-    
-    myWire.endTransmission();
-}
 
-//********************************Output Data********************************
+
+

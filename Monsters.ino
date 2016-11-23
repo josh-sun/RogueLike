@@ -1,6 +1,7 @@
 #define charx
 #define chary //character position
 #define charHealth 
+/*
 bool shooting = false;
 
 struct monster{
@@ -63,4 +64,4 @@ static void aiShoot(){
       charHealth -= 1;
     }
 }
-
+*/

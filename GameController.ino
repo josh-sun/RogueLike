@@ -1,6 +1,9 @@
 #include <stdbool.h>
 #include <string.h>
 
+//Forward Declarations
+void calcTilt(bool *directions);
+
 #include <FillPat.h>
 #include <LaunchPad.h>
 #include <OrbitBoosterPackDefs.h>
@@ -23,14 +26,6 @@ static const uint32_t Buttons[BUTTON_COUNT] = { PD_2, PE_0 };
 static int CursorPos_x = 8, CursorPos_y = 8;      //pos on screen (pixels)
 static int GridPos_X = 1, GridPos_Y = 1;          //pos on grid (each point is 8 pixels);
 
-//static char gameMap[MAX_MAP_SIZE_X][MAX_MAP_SIZE_Y] = {};
-
-//forward declaration
-bool getUpPitch ();
-bool getDownPitch();
-bool getRightRoll();
-bool getLeftRoll();
-
 static enum GameMenu {
   Welcome,
   Difficulty_Selection,
@@ -46,6 +41,7 @@ static struct InputState
 {
   bool                switches[2];
   struct ButtonState  buttons[2];
+  bool                directions[4];
   float               potentiometer;
 } gameInputState;
 
@@ -96,22 +92,16 @@ static void handlePlayerMovement() {
   OrbitOledUpdate();
   OrbitOledClearBuffer();
 
-  if (getRightRoll()) {
+  if (gameInputState.directions[3]) {
     GridPos_X++;
     Serial.println("Move Right!");
-  } 
-  
-  if (getLeftRoll()){
+  } else if (gameInputState.directions[2]){
     GridPos_X--;
     Serial.println("Move Left!");
-  }
-  
-  if (getDownPitch()) {
+  } else if (gameInputState.directions[1]) {
       GridPos_Y++;
       Serial.println("Move Down!");
-  } 
-  
-  if (getUpPitch()) {
+  } else if (gameInputState.directions[0]) {
       GridPos_Y--;
       Serial.println("Move Up!");
   }
@@ -128,16 +118,6 @@ static void handlePlayerMovement() {
   if (GridPos_Y > 2) {
     GridPos_Y--;
   }
-
-
-  
-  /*
-  if(gameInputState.buttons[1].isRising) {
-        OrbitOledClear();
-        OrbitOledMoveTo(pos[0],++pos[1]);
-        handleGameUI();
-    }
-    */
 }
 
 
@@ -203,6 +183,7 @@ static void UIInputTick() {
     gameInputState.buttons[i].state = digitalRead(Buttons[i]);
     gameInputState.buttons[i].isRising = (!previousState && gameInputState.buttons[i].state);
   }
+  calcTilt(gameInputState.directions);
   //gameInputState.potentiometer = analogRead(Potentiometer);
 }
 
