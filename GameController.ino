@@ -1,8 +1,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-//Forward Declarations
-void calcTilt(bool *directions);
+
 
 #include <FillPat.h>
 #include <LaunchPad.h>
@@ -19,9 +18,6 @@ void calcTilt(bool *directions);
 #define CHAR_PIXEL          8
 #define MAX_ROOM_SIZE_X     16
 #define MAX_ROOM_SIZE_Y     4
-
-static const uint32_t Switches[SWITCH_COUNT] = { PA_7, PA_6 };
-static const uint32_t Buttons[BUTTON_COUNT] = { PD_2, PE_0 };
 
 static int CursorPos_x = 8, CursorPos_y = 8;      //pos on screen (pixels)
 static int GridPos_X = 1, GridPos_Y = 1;          //pos on grid (each point is 8 pixels);
@@ -55,11 +51,7 @@ void GameUIInit() {
   OrbitOledSetDrawMode(modOledSet);
   OrbitOledSetCharUpdate(0);
   
-  Serial.println("Game UI Initialzied");
-  for(int i = 0; i < SWITCH_COUNT; ++i )
-    pinMode(Switches[i], INPUT);
-  for(int i = 0; i < BUTTON_COUNT; ++i )
-    pinMode(Buttons[i], INPUT);    
+  handlePageWelcome(); 
 }
 
 static void MapGenerate() {
@@ -155,7 +147,6 @@ static void handlePageWelcome(){
 }
 
 void GameUITick() {
-  UIInputTick();
   
   switch(gameCurrentPage)
   {
@@ -173,18 +164,6 @@ void GameUITick() {
   }
 }
 
-static void UIInputTick() {
-  for(int i = 0; i < SWITCH_COUNT; ++i )
-    gameInputState.switches[i] = digitalRead(Switches[i]);
-  for(int i = 0; i < BUTTON_COUNT; ++i )
-  {
-    // Only look for Rising Edge Signals.
-    bool previousState = gameInputState.buttons[i].state;
-    gameInputState.buttons[i].state = digitalRead(Buttons[i]);
-    gameInputState.buttons[i].isRising = (!previousState && gameInputState.buttons[i].state);
-  }
-  calcTilt(gameInputState.directions);
-  //gameInputState.potentiometer = analogRead(Potentiometer);
-}
+
 
 
