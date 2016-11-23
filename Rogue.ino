@@ -8,8 +8,8 @@
 
 void GameUIInit();
 void TiltDetectInit();
+void TiltDetectTick();
 void AccelerometerInit();
-
 void GameUITick();
 
 
@@ -28,5 +28,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly: 
+  TiltDetectTick();
   GameUITick();
+
 }

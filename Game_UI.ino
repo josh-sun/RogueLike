@@ -25,6 +25,12 @@ static int GridPos_X = 1, GridPos_Y = 1;          //pos on grid (each point is 8
 
 //static char gameMap[MAX_MAP_SIZE_X][MAX_MAP_SIZE_Y] = {};
 
+//forward declaration
+bool getUpPitch ();
+bool getDownPitch();
+bool getRightRoll();
+bool getLeftRoll();
+
 static enum GameMenu {
   Welcome,
   Difficulty_Selection,
@@ -51,6 +57,7 @@ void GameUIInit() {
   OrbitOledClearBuffer();
   OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
   OrbitOledSetDrawMode(modOledSet);
+  OrbitOledSetCharUpdate(0);
   
   Serial.println("Game UI Initialzied");
   for(int i = 0; i < SWITCH_COUNT; ++i )
@@ -82,47 +89,44 @@ static void drawRoom() {
 }
 
 static void handlePlayerMovement() {
-  GridPos_X /= CursorPos_x;
-  GridPos_Y /= CursorPos_y;
+  CursorPos_x = GridPos_X*CHAR_PIXEL;
+  CursorPos_y = GridPos_Y*CHAR_PIXEL;
   OrbitOledMoveTo(CursorPos_x,CursorPos_y);
   OrbitOledDrawChar('@');
+  OrbitOledUpdate();
+  OrbitOledClearBuffer();
+
+  if (getRightRoll()) {
+    GridPos_X++;
+    Serial.println("Move Right!");
+  } 
   
-  if(gameInputState.buttons[0].isRising) {
-    OrbitOledClear();
-    if (!gameInputState.switches[0]) {
-      GridPos_X++;
-      Serial.println("Move Right!");
-    }
-    else {
-      GridPos_X--;
-      Serial.println("Move Left!");
-    }
+  if (getLeftRoll()){
+    GridPos_X--;
+    Serial.println("Move Left!");
   }
-
-  if(gameInputState.buttons[1].isRising) {
-    OrbitOledClear(); 
-    if (gameInputState.switches[1]) {
-      GridPos_y++;
+  
+  if (getDownPitch()) {
+      GridPos_Y++;
       Serial.println("Move Down!");
-    }
-    else {
-      GridPos_y--;
+  } 
+  
+  if (getUpPitch()) {
+      GridPos_Y--;
       Serial.println("Move Up!");
-    }
   }
 
-  if (CursorPos_x < CHAR_PIXEL) {
-    CursorPos_x += CHAR_PIXEL;
+  if (GridPos_X > 14) {
+    GridPos_X--;
   }
-  if (CursorPos_x > MAX_SCREEN_PIXEL_X-CHAR_PIXEL*2) {
-    Serial.println("TOO FAR!");
-    CursorPos_x -= CHAR_PIXEL;
+  if (GridPos_X < 1) {
+    GridPos_X++;
   }
-  if (CursorPos_y < CHAR_PIXEL) {
-    CursorPos_y += CHAR_PIXEL;
+  if (GridPos_Y < 1) {
+    GridPos_Y++;
   }
-  if (CursorPos_y > MAX_SCREEN_PIXEL_Y-CHAR_PIXEL*2) {
-    CursorPos_y -= CHAR_PIXEL;
+  if (GridPos_Y > 2) {
+    GridPos_Y--;
   }
 
 
@@ -153,16 +157,17 @@ static void handlePageWelcome(){
 
   OrbitOledMoveTo(0, 20);
   OrbitOledDrawString("BTN2 - Tutorial");
+
   
+  OrbitOledUpdate();
+  OrbitOledClearBuffer();
   
   if(gameInputState.buttons[0].isRising) {
-    OrbitOledClear();
     gameCurrentPage = Game;
     //gameUiPage = SelectPlayers;
   }
 
   if(gameInputState.buttons[1].isRising) {
-    OrbitOledClear();
     OrbitOledMoveTo(5,0);
     OrbitOledDrawString("Tutorial");
     
@@ -186,7 +191,6 @@ void GameUITick() {
   default:
     break;
   }
-  OrbitOledUpdate();
 }
 
 static void UIInputTick() {

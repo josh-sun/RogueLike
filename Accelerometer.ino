@@ -1,5 +1,5 @@
 #include <Wire.h>
-
+#include <math.h>
 
 #define byte uint8_t
 
@@ -18,15 +18,14 @@
 //constant definition
 #define ADXL345_DATA_SIZE       6       // Data Size From 6 Registers
 #define ADXL345_AXIS_COUNT      3       // Number Of Axis
-#define ADXL345_MAX_READING     255.0   // Max Value Sensor Could Read
+#define ADXL345_MAX_READING     2       // Max G Detection
 #define MG_LSB                  0.00390625  //conversion Factor for Full-Res Setting
 
 //Directions
+static bool UP = false, DOWN = false, LEFT = false, RIGHT = false;
 
-bool UP = false, DOWN = false, LEFT = false, RIGHT = false;
-
-static byte buffer[ADXL345_DATA_SIZE];
-static double rawData[ADXL345_AXIS_COUNT];
+static uint32_t buffer[ADXL345_DATA_SIZE];
+static uint16_t rawData[ADXL345_AXIS_COUNT];
 static double offset_x, offset_y, offset_z;   //Software Offset
 
 static TwoWire myWire(0);
@@ -44,12 +43,12 @@ static void powerOn() {
 }
 
 static void setGRange() {
-    writeToI2C(ADXL345_DATA_FORMAT, 0x09);
+    writeToI2C(ADXL345_DATA_FORMAT, 0x08);
 }
 
 //************************Read Accerleration*************************
-void get_xyz(double *xyz){
-    readAccelG(xyz);
+double *get_xyz(double *xyz){
+    return readAccelG(xyz);
 }
 
 static void readAccel() {
@@ -62,31 +61,54 @@ static void readAccel() {
     
 }
 
-static void readAccelG (double *xyz) {
+static double *readAccelG (double *xyz) {
     readAccel();
     
-    xyz[0] = rawData[0] * MG_LSB + offset_x;
-    xyz[1] = rawData[1] * MG_LSB + offset_y;
-    xyz[2] = rawData[2] * MG_LSB + offset_z;
+    xyz[0] = *(int16_t*)(&rawData[0]) * MG_LSB + offset_x;
+    xyz[1] = *(int16_t*)(&rawData[1]) * MG_LSB + offset_y;
+    xyz[2] = *(int16_t*)(&rawData[2]) * MG_LSB + offset_z;
     
-    for(int i=0; i<3; i++){
-        if (xyz[i] > ADXL345_MAX_READING || xyz[i] < 0) xyz[i] = 0;
-    }
-    
+    return xyz;
 }
 //************************ Sense pitch and rolls ************************
-static void readPitchRoll(*xyz) {
-  readAccelG (*xyz);
+void getPitchRoll(double *xyz) {
   double pitch, roll;
-  double limit = PI/4; //I still need to define the variables (booleans?) for up down left and right
-  pitch = (atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])) * 180.0) / PI;
-  roll = (atan2(xyz[1],(sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])) * 180.0) / PI;
-  if(pitch > limit) UP = true;
-  if(pitch < - limit) DOWN = true;
-  if(roll < limit) LEFT = true;
-  if(roll > -limit) RIGHT = true;
-  
+  double limit = 25; //I still need to define the variables (booleans?) for up down left and right
+  roll = (atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])) * 180.0) / PI;
+  pitch = (atan2(xyz[1],sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])) * 180.0) / PI;
+  if(pitch > limit) DOWN = true;
+  else DOWN = false;
+  if(pitch < - limit) UP = true;
+  else UP = false;
+  if(roll > limit) { LEFT = true;
+  }else LEFT = false;
+  if(roll < -limit) RIGHT = true;
+  else RIGHT = false;
+  /*
+  Serial.print("Roll: ");
+  Serial.print(atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])));
+  Serial.print(" Pitch: ");
+  Serial.println(atan2(xyz[1],sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])));
+  */
+
 }
+
+bool getUpPitch () {
+  return UP;
+}
+
+bool getDownPitch() {
+  return DOWN;
+}
+
+bool getRightRoll() {
+  return RIGHT;
+}
+
+bool getLeftRoll() {
+  return LEFT;
+}
+
 //************************Software Offset Setter*************************
 static void setSoftwareOffset (double x, double y, double z) {
     offset_x = x;
@@ -102,7 +124,7 @@ static void writeToI2C(byte address, byte val) {
     myWire.endTransmission();
 }
 
-static void readFromI2C(byte address, byte *buffer, int amount) {
+static void readFromI2C(byte address, uint32_t *buffer, int amount) {
     myWire.beginTransmission(ADXL345_DEVICE_ADDRESS);
     myWire.write(address);
     myWire.endTransmission();
