@@ -8,6 +8,7 @@ const uint32_t Potentiometer = PE_3;
 void calcTilt(bool *directions);
 void AccelerometerInit();
 
+
 void InputInit() {
   AccelerometerInit();
 

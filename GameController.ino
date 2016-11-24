@@ -1,15 +1,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-
-
 #include <FillPat.h>
 #include <LaunchPad.h>
 #include <OrbitBoosterPackDefs.h>
 #include <OrbitOled.h>
 #include <OrbitOledChar.h>
 #include <OrbitOledGrph.h>
-
 
 #define SWITCH_COUNT        2
 #define BUTTON_COUNT        2
@@ -21,12 +18,6 @@
 
 static int CursorPos_x = 8, CursorPos_y = 8;      //pos on screen (pixels)
 static int GridPos_X = 1, GridPos_Y = 1;          //pos on grid (each point is 8 pixels);
-
-static enum GameMenu {
-  Welcome,
-  Difficulty_Selection,
-  Game,
-} gameCurrentPage = Welcome;
 
 struct ButtonState { 
   bool state;
@@ -41,6 +32,11 @@ static struct InputState
   float               potentiometer;
 } gameInputState;
 
+static enum GameMenu {
+  Welcome,
+  Difficulty_Selection,
+  Game,
+} gameCurrentPage = Welcome;
 
 //initialize oled screen
 void GameUIInit() {
@@ -86,16 +82,12 @@ static void handlePlayerMovement() {
 
   if (gameInputState.directions[3]) {
     GridPos_X++;
-    Serial.println("Move Right!");
   } else if (gameInputState.directions[2]){
     GridPos_X--;
-    Serial.println("Move Left!");
   } else if (gameInputState.directions[1]) {
       GridPos_Y++;
-      Serial.println("Move Down!");
   } else if (gameInputState.directions[0]) {
       GridPos_Y--;
-      Serial.println("Move Up!");
   }
 
   if (GridPos_X > 14) {
