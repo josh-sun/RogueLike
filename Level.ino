@@ -46,7 +46,7 @@ struct levelMap CreateLevel(int level) {
        if (roomGenerated < roomCount) {
         roomGenerated++;
         int randLength = getRandomLength();
-        Serial.println(curr_Level.rooms[0][0].pos[0]);
+        Serial.println(curr_Level.rooms[0][1].pos[0].x);
         setRandomPosition(&curr_Level.rooms[i][j].pos[0], i+4, j+4, i, j);
         curr_Level.rooms[i][j].pos[1].x = curr_Level.rooms[i][j].pos[0].x+randLength;
         curr_Level.rooms[i][j].pos[1].y = curr_Level.rooms[i][j].pos[0].y+randLength;
