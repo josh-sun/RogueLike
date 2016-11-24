@@ -11,9 +11,7 @@ static struct world {
 
 
 void CreateWorld() {
-  for (int i = 0 ; i < LEVELS_COUNT; i++) {
-    //Serial.print("swag");
-    thisWorld.levels[i] = CreateLevel(i);
-  }
+  for (int i = 0; i < LEVELS_COUNT; i++)
+    thisWorld.levels[i] = CreateLevel(i+1);
 }
 

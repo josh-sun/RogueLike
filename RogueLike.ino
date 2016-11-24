@@ -17,7 +17,7 @@ void setup() {
   GameUIInit();
   CreateWorld();
   
-  srand((7+analogRead(Potentiometer)) * 347);
+  srand((69+analogRead(Potentiometer)) * 420);
   
 }
 
