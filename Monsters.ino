@@ -1,12 +1,13 @@
+/*
 struct position{
   int x,y;
-};
+}
 
 struct monster{
   struct position;
   int health;
   int monsterLevel;
-};
+}
 
 struct monster CreateMonster(int x, int y, int level, int health){
   struct monster enemy = {x, y, health, level};  //is x and y going to struct position??
@@ -130,7 +131,7 @@ static void UpdateMonsterPosition( struct monster *enemy  ){
       enemy.x ++;
       enemy.y --;
     }
-    */
+    
     
 }
 
@@ -141,4 +142,4 @@ struct position ReturnPosition (struct monster *enemy){
 static int ReturnHP(struct monster *enemy){
   return enemy.health;
 }
-
+*/

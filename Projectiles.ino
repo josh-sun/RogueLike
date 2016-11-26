@@ -1,3 +1,4 @@
+/*
 struct position{
   int x,y;
 };
@@ -6,12 +7,12 @@ struct projectile{
   struct position;
   int direction; //0 is left, 1 is right 2 is up and 3 is down
   int damage;
-}
+};
 
 struct projectile CreateProjectile(int x, int y, int dir, int dmg){
   struct projectile shot = {x, y, dir, dmg};
   return shot;
-}
+};
 
 static void UpdateProjectilePosition(struct projectile *shot){
   switch(shot.direction){
@@ -25,6 +26,6 @@ static void UpdateProjectilePosition(struct projectile *shot){
  static struct position ReturnPosition(struct projectile *shot){
   return shot.position;
 }
-
+*/
 
 

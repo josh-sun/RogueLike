@@ -1,3 +1,4 @@
+/*
 struct position{
   int x,y;
 }
@@ -18,4 +19,4 @@ struct position ReturnPosition( struct player *player1){
 int ReturnHP(struct player *player1){
   return player1.health;
 }
-
+*/

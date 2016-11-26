@@ -96,12 +96,6 @@ void calcTilt(bool *directions) {
     directions[3] = true;
   else 
     directions[3] = false;
-  /*
-  Serial.print("Roll: ");
-  Serial.print(atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])));
-  Serial.print(" Pitch: ");
-  Serial.println(atan2(xyz[1],sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])));
-  */
 
 }
 
