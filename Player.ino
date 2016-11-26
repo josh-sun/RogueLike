@@ -15,3 +15,7 @@ struct position ReturnPosition( struct player *player1){
   return player1.position;
 }
 
+int ReturnHP(struct player *player1){
+  return player1.health;
+}
+

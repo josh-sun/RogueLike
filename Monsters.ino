@@ -138,4 +138,7 @@ struct position ReturnPosition (struct monster *enemy){
   return enemy.position;
 }
 
+static int ReturnHP(struct monster *enemy){
+  return enemy.health;
+}
 
