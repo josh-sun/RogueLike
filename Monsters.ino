@@ -14,8 +14,97 @@ struct monster CreateMonster(int x, int y, int level, int health){
 }
 
 static void UpdateMonsterPosition( struct monster *enemy  ){
-  int randomizer = rand(); //randomly decide if the enemy approaches in x or y
-    if(randomizer % 2 == 0){
+  int count = 1;
+  switch(enemy.monsterLevel){ //not in order of "difficulty" yet
+    case 1: switch (count){
+      case 1: enemy.x ++;
+      count++;
+      case 2: enemy.y --;
+      count ++;
+      case 3: enemy.x --;
+      count ++;
+      case 4: enemy.y --;
+      count ++;
+      case 5: enemy.x ++;
+      count ++;
+      case 6: enemy.x ++;
+      count ++;
+      case 7: enemy.y ++;
+      count ++;
+      case 8: enemy.y ++;
+      count ++;
+      case 9: enemy.x --;
+      count ++;
+      case 10: enemy.x --;
+      count = 0;
+    }   
+  case 2: switch (count){
+    case 1: enemy.x ++;
+    count ++;
+    case 2: enemy.x ++;
+    count ++;
+    case 3: enemy.x --;
+    count ++;
+    case 4: enemy.x --;
+    count = 0;
+  }
+  
+  case 3: switch (count){
+    case 1: enemy.y --;
+    count ++;
+    case 2: enemy.x ++;
+    count ++;
+    case 3: enemy.y ++;
+    count ++;
+    case 4: enemy.x --;
+    count ++;
+    case 5: enemy.y --;
+    count ++;
+    case 6: enemy.x --;
+    count ++;
+    case 7: enemy.x --;
+    count ++;
+    case 8: enemy.y ++;
+    count = 0;
+  }
+  case 4: switch(count){
+    case 1: enemy.x --;
+    count ++;
+    case 2: enemy.y --;
+    count ++;
+    case 3: enemy.y --;
+    count ++;
+    case 4: enemy.x ++;
+    count ++;
+    case 5: enemy.y ++;
+    count ++;
+    case 6: enemy.y ++;
+    count = 0;
+  }
+  
+  case 5: switch (count){
+    case 1: enemy.x ++;
+    count ++;
+    case 2: enemy.x ++;
+    count ++;
+    case 3: enemy.x --;
+    count ++;
+    case 4: enemy.x ++;
+    count ++;
+    case 5: enemy.x ++;
+    count ++;
+    case 6: enemy.x --;
+    count ++;
+    case 7: enemy.x --;
+    count ++;
+    case 8: enemy.x ++;
+    count ++;
+    case 9: enemy.x --;
+    count ++;
+    case 10: enemy.x --;
+    count = 0;
+  }
+  
         if(charx > enemy.x) enemy.x += 1;
         else enemy.x -= 1;
     }

@@ -13,7 +13,7 @@ struct projectile CreateProjectile(int x, int y, int dir, int dmg){
   return shot;
 }
 
-void UpdateProjectilePosition(struct projectile *shot){
+static void UpdateProjectilePosition(struct projectile *shot){
   switch(shot.direction){
     case 0: shot.x--;
     case 1: shot.x++;
@@ -22,7 +22,7 @@ void UpdateProjectilePosition(struct projectile *shot){
    }
 }
 
-struct position ReturnPosition(struct projectile *shot){
+ static struct position ReturnPosition(struct projectile *shot){
   return shot.position;
 }
 

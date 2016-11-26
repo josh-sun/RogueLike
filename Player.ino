@@ -11,5 +11,7 @@ struct player CreatePlayer (int x, int y, int health){
   return Player1;
 }
 
-
+struct position ReturnPosition( struct player *player1){
+  return player1.position;
+}
 
