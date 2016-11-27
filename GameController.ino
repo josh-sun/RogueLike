@@ -73,6 +73,7 @@ static void drawRoom() {
 }
 
 static void handlePlayerMovement() {
+  /*
   CursorPos_x = GridPos_X*CHAR_PIXEL;
   CursorPos_y = GridPos_Y*CHAR_PIXEL;
   OrbitOledMoveTo(CursorPos_x,CursorPos_y);
@@ -102,6 +103,7 @@ static void handlePlayerMovement() {
   if (GridPos_Y > 2) {
     GridPos_Y--;
   }
+  */
 }
 
 

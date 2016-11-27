@@ -6,6 +6,11 @@
 #define MIN_ROOM_SIZE_X         8
 #define MIN_ROOM_SIZE_Y         8
 
+struct tunnel {
+  struct position     endPos[2];
+};
+
+
 struct room {
     struct position   pos[2];
     int len;
@@ -18,6 +23,7 @@ struct levelMap {
     int               len;
     int               wid;
     struct room       rooms[11];
+    //struct tunnel     tunnels[30];
 } ;
 
 static int getRandomLength() {
@@ -72,7 +78,7 @@ static void setRoomPosition (struct levelMap *thisMap) {
      
   for (int i = 0; i < thisMap->roomCount; i++) {
     if (loopCount++==loopThreshold) {
-      expandMap(thisMap, i);
+      expandMap(thisMap);
       loopCount = 0;
     }
 
@@ -102,6 +108,19 @@ static void setRoomPosition (struct levelMap *thisMap) {
   }
 }
 
+static int equOfLine(int x, int y, int x1, int y1, int x2, int y2) {
+  return (y2-y1)*x + (x1-x2)*y + (x2*y1-x1*y2);
+}
+
+static bool intersectWithRoom (struct position pos[], int x1, int y1, int x2, int y2) {
+  for (int x = x1; x<=x2;x++) {
+    for (int y = y1; y<=y2; y++) {
+      if (equOfLine(x,y,x1,y1,x2,y2)==0) return true;
+    }
+  }
+  return false;
+}
+
 static void setRoomDimensions(struct levelMap *thisMap) {
   for (int i = 0; i < thisMap->roomCount; i++) {
     thisMap->rooms[i].len = getRandomLength();
@@ -109,10 +128,81 @@ static void setRoomDimensions(struct levelMap *thisMap) {
   } 
 }
 
-static void expandMap (struct levelMap *thisMap, int currentRoom) {
+static void expandMap (struct levelMap *thisMap) {
   thisMap->len += MAX_ROOM_SIZE_X;
   thisMap->wid += MAX_ROOM_SIZE_Y;
 }
+
+/*
+static void generateTunnels(struct levelMap *thisMap) {
+  int currRoom1 = 0;
+  int currRoom2 = 1; 
+  
+  for (int i = 0; i < thisMap->roomCount-1; i++) {
+    for (int z = i+1; z < thisMap->roomCount; z++) { 
+      currRoom1 = i;
+      
+      int x1,y1,x2,y2; //tunnel endpoints
+      
+      //room 1 coordinates
+      int r1lx = thisMap->rooms[i].pos[0].x;
+      int r1rx = thisMap->rooms[i].pos[1].x;
+      int r1ly = thisMap->rooms[i].pos[0].y;
+      int r1ry = thisMap->rooms[i].pos[1].y;
+  
+      //rooms2 coordinates
+      int r2lx = thisMap->rooms[z].pos[0].x;
+      int r2rx = thisMap->rooms[z].pos[1].x;
+      int r2ly = thisMap->rooms[z].pos[0].y;
+      int r2ry = thisMap->rooms[z].pos[1].y;
+  
+     
+      if (r1lx > r2rx) { //r1 to the right of r2
+        x1 = r2rx;
+        y1 = rand()%(r2ry-r2ly-2)+r2ly+1;
+        x2 = r1lx;
+        y2 = rand()%(r1ry-r1ly-2)+r1ly+1;
+      } else if (r2lx > r1rx) { //r2 to the right of r1
+        x1 = r1rx;
+        y1 = rand()%(r1ry-r1ly-2)+r1ly+1;
+        x2 = r2lx;
+        y2 = rand()%(r2ry-r2ly-2)+r2ly+1;
+      } else if (r1ly > r2ry) { //r1 above r2
+        x1 = rand()%(r2rx-r2lx-2)+r2lx+1;
+        y1 = r2ly
+        x2 = rand()%(r1rx-r1lx-2)+r1lx+1;
+        y2 = r1ry;
+      } else {  //r2 above r1
+        x1 = rand()%(r1rx-r1lx-2)+r1lx+1;
+        y1 = r1ly
+        x2 = rand()%(r2rx-r2lx-2)+r2lx+1;
+        y2 = r2ry;
+      }
+  
+      bool isValidTunnel = true;
+      for (int j = 0; j < thisMap->roomCount; j++) {
+        if (j==currRoom1 || currRoom2) ++j;
+        if (intersectWithRoom(thisMap->rooms[j]->pos, x1, y1, x2, y2)) {
+          currRoom2++;
+          --i;
+          isValidTunnel = false;
+          break;
+        }
+      }
+      
+      if(isValidTunnel) {
+        thisMap->tunnels[i]->pos[0].x = x1;
+        thisMap->tunnels[i]->pos[0].y = y1;
+        thisMap->tunnels[i]->pos[1].x = x2;
+        thisMap->tunnels[i]->pos[1].y = y2;
+        struct room tempRoom = thisMap->rooms[i+1];
+        thisMap->rooms[i+1] = thisMap->rooms[z];
+        thisMap->rooms[z] = tempRoom;
+      }
+    }
+  }
+}
+*/
 
 struct levelMap CreateLevel(int level) {
   struct levelMap curr_level;
