@@ -1,4 +1,5 @@
 #include <math.h>
+#include "definitions.h"
 
 //Forward Declarations
 void Wire_utils_init();
@@ -42,7 +43,7 @@ static void setGRange(byte value) {
 //************************Read Accerleration*************************
 
 
-void ReadAccelG (double *xyz) {
+double *ReadAccelG (double xyz[3]) {
     uint16_t rawData[3];
     
     readAccel(rawData);
@@ -50,7 +51,6 @@ void ReadAccelG (double *xyz) {
     xyz[0] = *(int16_t*)(&rawData[0]) * MG_LSB + offset_X;
     xyz[1] = *(int16_t*)(&rawData[1]) * MG_LSB + offset_Y;
     xyz[2] = *(int16_t*)(&rawData[2]) * MG_LSB + offset_Z;
-
 }
 
 static void readAccel(uint16_t *rawData) {
@@ -66,37 +66,26 @@ static void readAccel(uint16_t *rawData) {
 }
 
 //************************ Sense pitch and rolls ************************
-void calcTilt(bool *directions) {
-  double xyz[3];
-  ReadAccelG(xyz);
+int CalcTiltDirection(double xyz[3]) {
   
   double roll = (atan2(xyz[0],sqrt(xyz[1]*xyz[1]+xyz[2]*xyz[2])) * 180.0) / PI;
   double pitch = (atan2(xyz[1],sqrt(xyz[0]*xyz[0]+xyz[2]*xyz[2])) * 180.0) / PI;
 
   //up
   if(pitch < -TILT_THRESHOLD) 
-    directions[0] = true;
-  else 
-    directions[0] = false;
+    return UP;
 
   //down
   if(pitch > TILT_THRESHOLD) 
-    directions[1] = true;
-  else 
-    directions[1] = false;
+    return DOWN;
 
   //left  
   if(roll > TILT_THRESHOLD)
-    directions[2] = true;
-  else 
-    directions[2] = false;
+    return LEFT;
 
   //right
   if(roll < -TILT_THRESHOLD) 
-    directions[3] = true;
-  else 
-    directions[3] = false;
-
+    return RIGHT;
 }
 
 //************************Software Offset Setter*************************

@@ -5,7 +5,8 @@ const uint32_t Buttons[ButtonCount] = { PD_2, PE_1 };
 const uint32_t Potentiometer = PE_3;
 
 //Forward Declarations
-void calcTilt(bool *directions);
+double *ReadAccelG(double xyz[3]);
+int CalcTiltDirection (double g);
 void AccelerometerInit();
 
 
@@ -21,8 +22,8 @@ void InputInit() {
   
 }
 
-void OnInput() {
-
+void ReadInput() {
+  double xyz[3];
   for(int i = 0; i < SwitchCount; ++i )
     gameInputState.switches[i] = digitalRead(Switches[i]);
   for(int i = 0; i < ButtonCount; ++i )
@@ -33,5 +34,5 @@ void OnInput() {
     gameInputState.buttons[i].isRising = (!previousState && gameInputState.buttons[i].state);
   }
   gameInputState.potentiometer = analogRead(Potentiometer);
-  calcTilt(gameInputState.directions);
+  gameInputState.tiltDirection = CalcTiltDirection(ReadAccelG(gameInputState.xyz));
 }

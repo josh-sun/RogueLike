@@ -2,7 +2,7 @@
 struct levelMap;
 struct levelMap CreateLevel();
 
-#define LEVELS_COUNT    9
+#define LEVELS_COUNT    6
 
 static struct world {
   struct levelMap   levels[LEVELS_COUNT];
@@ -10,15 +10,6 @@ static struct world {
 
 
 void CreateWorld() {
-
-/*
-for (int i = 0; i < 100; i ++) {
-  srand(analogRead(Potentiometer)+i);
-  int num = rand()%(100);
-  if (num==99)
-    Serial.println(num);
-}
-*/
 
 thisWorld.levels[0] = CreateLevel(1);
 thisWorld.levels[1] = CreateLevel(2);

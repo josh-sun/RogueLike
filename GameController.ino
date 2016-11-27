@@ -28,7 +28,7 @@ static struct InputState
 {
   bool                switches[2];
   struct ButtonState  buttons[2];
-  bool                directions[4];
+  int                 tiltDirection;
   float               potentiometer;
 } gameInputState;
 

@@ -1,29 +1,22 @@
 #include <math.h>
+#include "definitions.h"
 
 #define MAX_ROOM_SIZE_X         15
 #define MAX_ROOM_SIZE_Y         15
 #define MIN_ROOM_SIZE_X         8
 #define MIN_ROOM_SIZE_Y         8
 
-struct position {
-    int x;
-    int y;
-};
-
-struct dimension {
-  int x_length;
-  int y_length;
-};
-
 struct room {
     struct position   pos[2];
-    struct dimension  dimensions;
+    int len;
+    int wid;
 };
 
 struct levelMap {
     int               level;
     int               roomCount;
-    struct dimension  mapSize;
+    int               len;
+    int               wid;
     struct room       rooms[11];
 } ;
 
@@ -49,20 +42,19 @@ static void setRoomCount(struct levelMap *thisMap) {
 static void setMapSize(struct levelMap *thisMap) {
   int sum_x, sum_y;
   for (int i = 0; i < thisMap->roomCount; i++) {
-    sum_x+=thisMap->rooms[i].dimensions.x_length;
-    sum_y+=thisMap->rooms[i].dimensions.y_length;
+    sum_x+=thisMap->rooms[i].len;
+    sum_y+=thisMap->rooms[i].wid;
   }
-  thisMap->mapSize.x_length = sum_x;
-  thisMap->mapSize.y_length = sum_y;
-  Serial.println(thisMap->roomCount);
+  thisMap->len = sum_x;
+  thisMap->wid = sum_y;
+  //Serial.println(thisMap->roomCount);
 }
 
 
 static bool roomOverlaps (struct position pos[], int x1, int y1, int x2, int y2) {
 if (pos[0].x > x2 || x1 > pos[1].x ||
     pos[0].y > y2 || y1 > pos[1].y) 
-      return false;
-                     
+      return false;  
   return true;
 }
 
@@ -85,10 +77,10 @@ static void setRoomPosition (struct levelMap *thisMap) {
     }
 
     int x1, y1, x2, y2;
-    x1 = rand()%(thisMap->mapSize.x_length-MAX_ROOM_SIZE_X-1);
-    y1 = rand()%(thisMap->mapSize.y_length-MAX_ROOM_SIZE_Y-1);
-    x2 = x1+thisMap->rooms[i].dimensions.x_length;
-    y2 = y1+thisMap->rooms[i].dimensions.y_length;
+    x1 = rand()%(thisMap->len-MAX_ROOM_SIZE_X-1);
+    y1 = rand()%(thisMap->wid-MAX_ROOM_SIZE_Y-1);
+    x2 = x1+thisMap->rooms[i].len;
+    y2 = y1+thisMap->rooms[i].wid;
     
 
     bool flag = false;
@@ -107,21 +99,19 @@ static void setRoomPosition (struct levelMap *thisMap) {
     thisMap->rooms[i].pos[0].y = y1;
     thisMap->rooms[i].pos[1].x = x2;
     thisMap->rooms[i].pos[1].y = y2;
-  
   }
-  
 }
 
 static void setRoomDimensions(struct levelMap *thisMap) {
   for (int i = 0; i < thisMap->roomCount; i++) {
-    thisMap->rooms[i].dimensions.x_length = getRandomLength();
-    thisMap->rooms[i].dimensions.y_length = getRandomLength();
+    thisMap->rooms[i].len = getRandomLength();
+    thisMap->rooms[i].wid = getRandomLength();
   } 
 }
 
 static void expandMap (struct levelMap *thisMap, int currentRoom) {
-  thisMap->mapSize.x_length += MAX_ROOM_SIZE_X;
-  thisMap->mapSize.y_length += MAX_ROOM_SIZE_Y;
+  thisMap->len += MAX_ROOM_SIZE_X;
+  thisMap->wid += MAX_ROOM_SIZE_Y;
 }
 
 struct levelMap CreateLevel(int level) {
@@ -141,17 +131,17 @@ void printLevelInfo(struct levelMap curr_level) {
   Serial.print("Room Count: ");
   Serial.println(curr_level.roomCount);
   Serial.print("Map Size: ");
-  Serial.print(curr_level.mapSize.x_length);
+  Serial.print(curr_level.len);
   Serial.print(" X ");
-  Serial.println(curr_level.mapSize.y_length);
+  Serial.println(curr_level.wid);
   for (int i = 0; i < curr_level.roomCount; i++) {
     Serial.print("Room ");
     Serial.print(i+1);
     Serial.println(": ");
     Serial.print("Dimensions: ");
-    Serial.print(curr_level.rooms[i].dimensions.x_length);
+    Serial.print(curr_level.rooms[i].len);
     Serial.print(" X ");
-    Serial.println(curr_level.rooms[i].dimensions.y_length);
+    Serial.println(curr_level.rooms[i].wid);
     Serial.print("(");
     Serial.print(curr_level.rooms[i].pos[0].x);
     Serial.print(",");

@@ -9,20 +9,14 @@
 #ifndef Definitions_h
 #define Definitions_h
 
+#define UP      0
+#define DOWN    1
+#define LEFT    2
+#define RIGHT   3
+
 struct position {
     int x;
     int y;
 };
-
-struct room {
-    struct position   pos[2];
-};
-
-struct levelMap {
-    int               level;
-    int               roomCount;
-    struct room       rooms[4][4];
-    //add struct monster
-} ;
 
 #endif /* Definitions_h */

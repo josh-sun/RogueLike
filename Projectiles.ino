@@ -1,31 +1,36 @@
-/*
-struct position{
-  int x,y;
-};
+#include "definitions.h"
 
-struct projectile{
-  struct position;
-  int direction; //0 is left, 1 is right 2 is up and 3 is down
-  int damage;
+struct projectile {
+  struct position   pos;
+  int               direction; 
+  int               damage;
 };
 
 struct projectile CreateProjectile(int x, int y, int dir, int dmg){
-  struct projectile shot = {x, y, dir, dmg};
+  struct projectile shot;
+  shot.pos.x = x;
+  shot.pos.y = y;
+  shot.direction = dir;
+  shot.damage = dmg;
   return shot;
 };
 
-static void UpdateProjectilePosition(struct projectile *shot){
-  switch(shot.direction){
-    case 0: shot.x--;
-    case 1: shot.x++;
-    case 2: shot.y++;
-    case 3: shot.y--;
+void UpdateProjectilePosition(struct projectile *shot){
+  switch(shot->direction){
+    case UP:    
+      --shot->pos.y;
+      break;
+    case DOWN:  
+      ++shot->pos.y;
+      break;
+    case LEFT: 
+      --shot->pos.x;
+      break;
+    case RIGHT: 
+      ++shot->pos.x;
+      break;
+    default:
+      break;
    }
 }
-
- static struct position ReturnPosition(struct projectile *shot){
-  return shot.position;
-}
-*/
-
 

@@ -4,7 +4,7 @@
 void GameUIInit();
 void GameUITick();
 void InputInit();
-void OnInput();
+void ReadInput();
 void CreateWorld();
 
 extern const uint32_t Potentiometer;
@@ -17,15 +17,13 @@ void setup() {
   InputInit();
   GameUIInit();
   
-  CreateWorld();
-  
   srand(analogRead(Potentiometer));
   
 }
 
 void loop() {
-  // put your main code here, to run repeatedly: 
-  OnInput();
+
+  ReadInput();
   GameUITick();
 
 }

@@ -1,145 +1,69 @@
-/*
-struct position{
-  int x,y;
-}
+#include "definitions.h"
 
 struct monster{
-  struct position;
-  int health;
-  int monsterLevel;
-}
+  int               level;
+  int               health;
+  char              name;
+  bool              canShootProjectiles;
+  bool              canRoam;
+  struct  position  pos;
+};
 
-struct monster CreateMonster(int x, int y, int level, int health){
-  struct monster enemy = {x, y, health, level};  //is x and y going to struct position??
+struct monster CreateMonster(int level, bool canShootProjectiles, bool canRoam, int x, int y) {
+  struct monster enemy;
+  enemy.health = scaleHpWithLevel(level);
+  enemy.name = setName();
+  enemy.canShootProjectiles = canShootProjectiles;
+  enemy.canRoam = canRoam;
+  enemy.pos.x = x;
+  enemy.pos.y = y;
   return enemy;
 }
 
-static void UpdateMonsterPosition( struct monster *enemy  ){
-  int count = 1;
-  switch(enemy.monsterLevel){ //not in order of "difficulty" yet
-    case 1: switch (count){
-      case 1: enemy.x ++;
-      count++;
-      case 2: enemy.y --;
-      count ++;
-      case 3: enemy.x --;
-      count ++;
-      case 4: enemy.y --;
-      count ++;
-      case 5: enemy.x ++;
-      count ++;
-      case 6: enemy.x ++;
-      count ++;
-      case 7: enemy.y ++;
-      count ++;
-      case 8: enemy.y ++;
-      count ++;
-      case 9: enemy.x --;
-      count ++;
-      case 10: enemy.x --;
-      count = 0;
-    }   
-  case 2: switch (count){
-    case 1: enemy.x ++;
-    count ++;
-    case 2: enemy.x ++;
-    count ++;
-    case 3: enemy.x --;
-    count ++;
-    case 4: enemy.x --;
-    count = 0;
+static char setName() {
+  int choice = rand()%(4)+1;
+  switch (choice) {
+  case 1:
+    return 'G';
+    break;
+  case 2:  
+    return 'K';
+    break;
+  case 3:
+    return 'O';
+    break;
+  case 4:
+    return 'T';
+    break;
+  case 5:
+    return 'P';
+    break;
+  default:
+    break;
   }
-  
-  case 3: switch (count){
-    case 1: enemy.y --;
-    count ++;
-    case 2: enemy.x ++;
-    count ++;
-    case 3: enemy.y ++;
-    count ++;
-    case 4: enemy.x --;
-    count ++;
-    case 5: enemy.y --;
-    count ++;
-    case 6: enemy.x --;
-    count ++;
-    case 7: enemy.x --;
-    count ++;
-    case 8: enemy.y ++;
-    count = 0;
-  }
-  case 4: switch(count){
-    case 1: enemy.x --;
-    count ++;
-    case 2: enemy.y --;
-    count ++;
-    case 3: enemy.y --;
-    count ++;
-    case 4: enemy.x ++;
-    count ++;
-    case 5: enemy.y ++;
-    count ++;
-    case 6: enemy.y ++;
-    count = 0;
-  }
-  
-  case 5: switch (count){
-    case 1: enemy.x ++;
-    count ++;
-    case 2: enemy.x ++;
-    count ++;
-    case 3: enemy.x --;
-    count ++;
-    case 4: enemy.x ++;
-    count ++;
-    case 5: enemy.x ++;
-    count ++;
-    case 6: enemy.x --;
-    count ++;
-    case 7: enemy.x --;
-    count ++;
-    case 8: enemy.x ++;
-    count ++;
-    case 9: enemy.x --;
-    count ++;
-    case 10: enemy.x --;
-    count = 0;
-  }
-  
-        if(charx > enemy.x) enemy.x += 1;
-        else enemy.x -= 1;
-    }
-    else{
-        if(chary > enemy.y) enemy.y += 1;
-        else enemy.y -= 1;
-    }   
-    /* Different ways of enemies moving possible by level
-    if(charx > enemy.x) {
-      enemy.x += 2;
-      enemy.y + 1;
-    }
-    else {
-      enemy.x -= 2;
-      enemy.y --;
-    }
-    /////
-    if (charx > enemy.x $$ chary > enemy.y){
-      enemy.x ++;
-      enemy.y ++;
-    }
-    else if(char x > enemy.x && chary < enemy.y){
-      enemy.x ++;
-      enemy.y --;
-    }
-    
-    
 }
 
-struct position ReturnPosition (struct monster *enemy){
-  return enemy.position;
+
+static int scaleHpWithLevel(int level) {
+  return level*100+rand()%(50);
 }
 
-static int ReturnHP(struct monster *enemy){
-  return enemy.health;
+void UpdateMonsterPosition(struct monster *thisMonster, int direction) {
+  switch(direction) {
+  case UP:
+    --thisMonster->pos.y;
+    break;
+  case DOWN:
+    ++thisMonster->pos.y;
+    break;
+  case LEFT:
+    --thisMonster->pos.x;
+    break;
+  case RIGHT:
+    ++thisMonster->pos.x;
+    break;
+  default:
+    break;
+  }
 }
-*/
+
