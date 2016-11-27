@@ -1,20 +1,12 @@
 #include "definitions.h"
 
-struct monster{
-  int               level;
-  int               health;
-  char              name;
-  bool              canShootProjectiles;
-  bool              canRoam;
-  struct  position  pos;
-};
 
-struct monster CreateMonster(int level, bool canShootProjectiles, bool canRoam, int x, int y) {
+
+
+struct monster CreateMonster(int level, int x, int y) {
   struct monster enemy;
   enemy.health = scaleHpWithLevel(level);
   enemy.name = setName();
-  enemy.canShootProjectiles = canShootProjectiles;
-  enemy.canRoam = canRoam;
   enemy.pos.x = x;
   enemy.pos.y = y;
   return enemy;

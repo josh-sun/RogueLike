@@ -51,6 +51,8 @@ double *ReadAccelG (double xyz[3]) {
     xyz[0] = *(int16_t*)(&rawData[0]) * MG_LSB + offset_X;
     xyz[1] = *(int16_t*)(&rawData[1]) * MG_LSB + offset_Y;
     xyz[2] = *(int16_t*)(&rawData[2]) * MG_LSB + offset_Z;
+
+    return xyz;
 }
 
 static void readAccel(uint16_t *rawData) {
@@ -86,6 +88,8 @@ int CalcTiltDirection(double xyz[3]) {
   //right
   if(roll < -TILT_THRESHOLD) 
     return RIGHT;
+
+  return NO_TILT;
 }
 
 //************************Software Offset Setter*************************

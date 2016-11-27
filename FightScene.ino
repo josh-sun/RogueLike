@@ -9,6 +9,7 @@
 #define ROOM_HEIGHT     4
 #define DELAY        1500
 
+/*
 void Attack(struct monster thisMonster){
   char basicAttack = "The enemy swings its arms for a punch!";
   char specialAttacks[4] = {"The enemy slashes you with its claws!", "The enemy dives in to bite you!", "The enemy whips its tail at you!", "The enemy throws a boulder at you!"}
@@ -53,3 +54,4 @@ void EnterFightScene(){
   OrbitOledClearBuffer;
 }
 
+*/

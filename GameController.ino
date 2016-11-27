@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <string.h>
+#include "definitions.h"
 
 #include <FillPat.h>
 #include <LaunchPad.h>
@@ -18,14 +19,15 @@
 
 static int CursorPos_x = 8, CursorPos_y = 8;      //pos on screen (pixels)
 static int GridPos_X = 1, GridPos_Y = 1;          //pos on grid (each point is 8 pixels);
+static int level = 1;
+static struct levelMap Curr_level;
 
 struct ButtonState { 
   bool state;
   bool isRising;
 };
 
-static struct InputState
-{
+static struct InputState {
   bool                switches[2];
   struct ButtonState  buttons[2];
   int                 tiltDirection;
@@ -34,41 +36,11 @@ static struct InputState
 
 static enum GameMenu {
   Welcome,
-  Difficulty_Selection,
   Game,
 } gameCurrentPage = Welcome;
 
-//initialize oled screen
-void GameUIInit() {
-  OrbitOledInit();
-  OrbitOledClear();
-  OrbitOledClearBuffer();
-  OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
-  OrbitOledSetDrawMode(modOledSet);
-  OrbitOledSetCharUpdate(0);
-  
-  handlePageWelcome(); 
-}
-
-static void MapGenerate() {
-
-  
-}
-
 static void drawRoom() {
-  char roomMap [MAX_ROOM_SIZE_Y][MAX_ROOM_SIZE_X] = 
-  { {'-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'},
-    {'|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'},
-    {'|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'},
-    {'-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'}
-  };
-
-  for (int i = 0; i < MAX_ROOM_SIZE_X; i++ ) {
-    for (int j = 0; j < MAX_ROOM_SIZE_Y; j++) {
-      OrbitOledMoveTo(i*CHAR_PIXEL,j*CHAR_PIXEL);
-      OrbitOledDrawChar(roomMap[j][i]);
-    }
-  }
+  
   
 }
 
@@ -108,54 +80,50 @@ static void handlePlayerMovement() {
 
 
 static void handlePageWelcome(){
-  
-  /*
-  OrbitOledDrawRect(5, 5);
-  OrbitOledFillRect(5, 5);
-  */
-  
-    
-  OrbitOledMoveTo(25, 0);
-  OrbitOledDrawString("---Rogue---");
+ 
+  OrbitOledMoveTo(8, 0);
+  OrbitOledDrawString("--Dungeon RPG--");
   
   OrbitOledMoveTo(0, 10);
   OrbitOledDrawString("BTN1 - Start");
-
-  OrbitOledMoveTo(0, 20);
-  OrbitOledDrawString("BTN2 - Tutorial");
-
   
-  OrbitOledUpdate();
-  OrbitOledClearBuffer();
-  
-  if(gameInputState.buttons[0].isRising) {
+  if(gameInputState.buttons[0].isRising) 
     gameCurrentPage = Game;
-    //gameUiPage = SelectPlayers;
-  }
 
-  if(gameInputState.buttons[1].isRising) {
-    OrbitOledMoveTo(5,0);
-    OrbitOledDrawString("Tutorial");
-    
-  } 
 }
 
-void GameUITick() {
+static void renderView() {
+  OrbitOledClearBuffer();
+  int player_x = Curr_level.usr.pos.x;
+  int player_y = Curr_level.usr.pos.y;
+
+}
+
+void PageSelection() {
   
   switch(gameCurrentPage)
   {
   case Welcome:
     handlePageWelcome();
     break;
-  case Difficulty_Selection:
-    break;
   case Game:
-    drawRoom();
-    handlePlayerMovement();
+    renderView();
     break;
   default:
     break;
   }
+  OrbitOledUpdate();
+}
+
+//initialize oled screen
+void GameUIInit() {
+  OrbitOledInit();
+  OrbitOledClear();
+  OrbitOledClearBuffer();
+  OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
+  OrbitOledSetDrawMode(modOledSet);
+  OrbitOledSetCharUpdate(0);
+  Curr_level = CreateLevel(level);
 }
 
 
