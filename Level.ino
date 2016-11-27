@@ -1,9 +1,9 @@
 #include <math.h>
 
-#define MAX_ROOM_SIZE_X         18
+#define MAX_ROOM_SIZE_X         15
 #define MAX_ROOM_SIZE_Y         15
-#define MIN_ROOM_SIZE_X         7
-#define MIN_ROOM_SIZE_Y         7
+#define MIN_ROOM_SIZE_X         8
+#define MIN_ROOM_SIZE_Y         8
 
 struct position {
     int x;
@@ -52,61 +52,64 @@ static void setMapSize(struct levelMap *thisMap) {
     sum_x+=thisMap->rooms[i].dimensions.x_length;
     sum_y+=thisMap->rooms[i].dimensions.y_length;
   }
-  thisMap->mapSize.x_length = sum_x + 10;
-  thisMap->mapSize.y_length = sum_y + 10;
+  thisMap->mapSize.x_length = sum_x;
+  thisMap->mapSize.y_length = sum_y;
+  Serial.println(thisMap->roomCount);
 }
 
 
-static void setRoomPosition (struct levelMap *thisMap) {
-  int dimension_x = thisMap->mapSize.x_length;
-  int dimension_y = thisMap->mapSize.y_length;
-  int mapLayout[dimension_x][dimension_y];
-  
-  for (int i = 0; i < dimension_x; i++) 
-    for (int j = 0; j < dimension_y; j++)
-      mapLayout[i][j] = 0;
-      
+static bool roomOverlaps (struct position pos[], int x1, int y1, int x2, int y2) {
+if (pos[0].x > x2 || x1 > pos[1].x ||
+    pos[0].y > y2 || y1 > pos[1].y) 
+      return false;
+                     
+  return true;
+}
+
+static bool satisfiesMinSeparation (struct position pos[], int x1, int y1, int x2, int y2) {
+  if (abs(pos[0].x-x2)>5&&abs(x1-pos[1].x)>5 &&
+      abs(pos[0].y-y2)>5&&abs(y1-pos[1].y)>5)
+      return true;
+  return false;
+}
+
+static void setRoomPosition (struct levelMap *thisMap) {  
+  int loopCount = 0;
+  const int loopThreshold = 1000;
+
+     
   for (int i = 0; i < thisMap->roomCount; i++) {
+    if (loopCount++==loopThreshold) {
+      expandMap(thisMap, i);
+      loopCount = 0;
+    }
+
     int x1, y1, x2, y2;
-
-    //choose a x position that's not in another room
-    do {
-      x1 = rand()%(dimension_x-1);
-      y1 = rand()%(dimension_y-1);
-    } while (mapLayout[x1][y1]==1);
-
-    //calculate position 2
+    x1 = rand()%(thisMap->mapSize.x_length-MAX_ROOM_SIZE_X-1);
+    y1 = rand()%(thisMap->mapSize.y_length-MAX_ROOM_SIZE_Y-1);
     x2 = x1+thisMap->rooms[i].dimensions.x_length;
     y2 = y1+thisMap->rooms[i].dimensions.y_length;
     
-    if (x2 >= dimension_x || y2 >= dimension_y || mapLayout[x2][y2] == 1) {
-      i--;
-      continue;
-    }
-    else {
-      bool flag = false;
-      for (int x = x1; x < x2; x++) {
-        for (int y = y1; y < y2; y++) {
-          if(mapLayout[x][y]==1) {
-            i--;
-            flag = true;
-            break;
-          }
-        }
-        if (flag) break;
-      }
-      if (flag) continue;
-      thisMap->rooms[i].pos[0].x = x1;
-      thisMap->rooms[i].pos[0].y = y1;
-      thisMap->rooms[i].pos[1].x = x2;
-      thisMap->rooms[i].pos[1].y = y2;
-      for (int x = x1; x < x2; x++) {
-        for (int y = y1; y < y2; y++) {
-          mapLayout[x][y] = 1;
-        }
+
+    bool flag = false;
+    for (int j = 0; j < i; j++) {
+      if (roomOverlaps(thisMap->rooms[j].pos, x1, y1, x2, y2) ||
+          !satisfiesMinSeparation(thisMap->rooms[j].pos, x1, y1, x2, y2)) {
+        --i;
+        flag = true;
+        break;
       }
     }
+    if (flag) continue;
+
+    
+    thisMap->rooms[i].pos[0].x = x1;
+    thisMap->rooms[i].pos[0].y = y1;
+    thisMap->rooms[i].pos[1].x = x2;
+    thisMap->rooms[i].pos[1].y = y2;
+  
   }
+  
 }
 
 static void setRoomDimensions(struct levelMap *thisMap) {
@@ -116,15 +119,19 @@ static void setRoomDimensions(struct levelMap *thisMap) {
   } 
 }
 
+static void expandMap (struct levelMap *thisMap, int currentRoom) {
+  thisMap->mapSize.x_length += MAX_ROOM_SIZE_X;
+  thisMap->mapSize.y_length += MAX_ROOM_SIZE_Y;
+}
+
 struct levelMap CreateLevel(int level) {
   struct levelMap curr_level;
-  Serial.println("swaga");
   curr_level.level = level;
   setRoomCount(&curr_level);
-  setRoomDimensions(&curr_level);
+  setRoomDimensions(&curr_level);  
   setMapSize(&curr_level);
   setRoomPosition(&curr_level);
-  //printLevelInfo(curr_level);
+  printLevelInfo(curr_level);
   return curr_level;
 }
 
@@ -157,5 +164,6 @@ void printLevelInfo(struct levelMap curr_level) {
     Serial.println("");
   }
   Serial.println("");
+  Serial.flush();
 }
 
