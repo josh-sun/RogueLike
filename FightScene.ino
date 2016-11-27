@@ -15,15 +15,17 @@ void Attack(struct monster thisMonster){
   char abilities[2] = {"The monster spits out flames!", "The monster casts a magic spell!"}
   
   OrbitOledMoveto(0,0);
+  
   if(thisMonster.level < 2) OrbitOledDrawString("%c", basicAttack);
   else if(thisMonster.level < 6) OrbitOledDrawString("%c", specialAttacks[rand() % 4]);
   else OrbitOledDrawString("%c", abilities[rand() % 2]);
+  
 }
 
 
 void EnterFightScene(){
   OrbitOledClearBuffer;
-  OrbitOledMoveto(0,0);
+  OrbitOledMoveto(5,5);
   OrbitOledDrawString("You have encountered monster %c!", setname());
   OrbitOledUpdate
   delay(DELAY); //delay
@@ -34,7 +36,9 @@ void EnterFightScene(){
     {'.','.','.','.','.','|',' ','^',' ','|','.','.','.','.','.','.'},
     {'.','.','.','_','_','_','-','-','-','_','_','_','.','.','.','.'}
   }; //working on doing this with pixels instead
+  
   OrbitOledClearBuffer;
+  
   for (int i = 0; i < ROOM_WIDTH; i++ ) {
     for (int j = 0; j < ROOM_HEIGHT; j++) {
       OrbitOledMoveTo(i*CHAR_PIXEL,j*CHAR_PIXEL);
@@ -45,5 +49,7 @@ void EnterFightScene(){
   OrbitOledDrawString("Get ready to fight!");
   OrbitOledUpdate;
   delay(DELAY);
+
+  OrbitOledClearBuffer;
 }
 
