@@ -34,5 +34,5 @@ void ReadInput() {
     gameInputState.buttons[i].isRising = (!previousState && gameInputState.buttons[i].state);
   }
   gameInputState.potentiometer = analogRead(Potentiometer);
-  gameInputState.tiltDirection = CalcTiltDirection(ReadAccelG(gameInputState.xyz));
+  gameInputState.tiltDirection = CalcTiltDirection(ReadAccelG(xyz));
 }
