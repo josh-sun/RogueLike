@@ -1,4 +1,4 @@
-
+/*
 int adr = EEPROM.length;
 #DEFINE X_POS     20
 #DEFINE Y_1       15
@@ -36,5 +36,4 @@ void DisplayScore(){ //displaying top 3
 
   OrbitOledMoveto(X_POS, Y_3);
   OrbitOledDrawString("3. %d", EEPROM.read(EEPROM.length-2));
-}
-
+}*/

@@ -1,3 +1,5 @@
+
+
 const uint32_t SwitchCount = 2;
 const uint32_t ButtonCount = 2;
 const uint32_t Switches[SwitchCount] = { PA_7, PA_6 };
@@ -23,7 +25,7 @@ void InputInit() {
 }
 
 void ReadInput() {
-  double xyz[3];
+
   for(int i = 0; i < SwitchCount; ++i )
     gameInputState.switches[i] = digitalRead(Switches[i]);
   for(int i = 0; i < ButtonCount; ++i )
@@ -34,5 +36,7 @@ void ReadInput() {
     gameInputState.buttons[i].isRising = (!previousState && gameInputState.buttons[i].state);
   }
   gameInputState.potentiometer = analogRead(Potentiometer);
+  double xyz[3];
   gameInputState.tiltDirection = CalcTiltDirection(ReadAccelG(xyz));
+  
 }
