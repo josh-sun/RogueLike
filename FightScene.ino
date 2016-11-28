@@ -1,3 +1,7 @@
+#include <stdbool.h>
+#include <string.h>
+
+#include <FillPat.h>
 #include <LaunchPad.h>
 #include <OrbitBoosterPackDefs.h>
 #include <OrbitOled.h>
