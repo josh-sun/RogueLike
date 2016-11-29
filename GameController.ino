@@ -602,7 +602,7 @@ static void animateMonster() {
       roam(&ActiveGame.curr_level.rooms[0],&ActiveGame.curr_level.monsters[0]);
     for (int i = 1; i < ActiveGame.curr_level.roomCount; i++) {
       if (!ActiveGame.curr_level.monsters[i].isDead) {
-        if (ActiveGame.usr.pos.x - ActiveGame.curr_level.monsters[i].pos.x <= 2 &&
+        if (ActiveGame.usr.pos.x - ActiveGame.curr_level.monsters[i].pos.x <= 3 &&
             ActiveGame.usr.pos.y - ActiveGame.curr_level.monsters[i].pos.y <= 2) {
                 follow(ActiveGame.usr, &ActiveGame.curr_level.monsters[i], &ActiveGame.curr_level.rooms[i]);
         } else {
