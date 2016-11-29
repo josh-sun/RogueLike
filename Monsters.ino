@@ -16,12 +16,9 @@ struct monster CreateMonster(int level, int x, int y) {
   return enemy;
 }
 
-static char setAttacks(struct attack *attacks) {
-
-}
-
 static char *setName() {
-  int choice = rand()%(4)+1;
+  int choice = rand()%(5)+1;
+  Serial.println(choice);
   switch (choice) {
   case 1:
     return "Hitler";
@@ -32,7 +29,7 @@ static char *setName() {
   case 4:
     return "Trump";
   case 5:
-    return "Putin God Emperor";
+    return "Putin";
   default:
     return "Putin";
   }
@@ -49,6 +46,50 @@ static int scaleSpDamageWithLevel(int level) {
 
 static int scaleHpWithLevel(int level) {
   return level*100+rand()%(50);
+}
+
+void roam(struct room *thisRoom, struct monster *thisMonster) {
+  int direction = rand()%(4);
+  UpdateMonsterPosition(thisMonster, direction);
+  int x = thisMonster->pos.x;
+  int y = thisMonster->pos.y;
+  if (((x==thisRoom->pos[0].x || x==thisRoom->pos[1].x) &&
+      (y >= thisRoom->pos[0].y && y <= thisRoom->pos[1].y)) ||
+      ((y==thisRoom->pos[0].y || y==thisRoom->pos[1].y) &&
+      (x >= thisRoom->pos[0].x && x <= thisRoom->pos[1].x))) {
+      if (direction==UP) direction = DOWN;
+      else if (direction==DOWN) direction = UP;
+      else if (direction==LEFT) direction = RIGHT;
+      else direction = LEFT;
+      UpdateMonsterPosition(thisMonster, direction);
+      UpdateMonsterPosition(thisMonster, direction);
+      UpdateMonsterPosition(thisMonster, direction);
+  }
+}
+
+void follow(struct player usr, struct monster *thisMonster, struct room *thisRoom) {
+  int direction;
+  if (usr.pos.x > thisMonster->pos.x)
+    direction = RIGHT;
+  else if (usr.pos.x < thisMonster->pos.x)
+    direction = LEFT;
+  else if (usr.pos.y > thisMonster->pos.y)
+    direction = DOWN;
+  else 
+    direction = UP;
+  UpdateMonsterPosition(thisMonster, direction);
+  int x = thisMonster->pos.x;
+  int y = thisMonster->pos.y;
+  if (((x==thisRoom->pos[0].x || x==thisRoom->pos[1].x) &&
+      (y >= thisRoom->pos[0].y && y <= thisRoom->pos[1].y)) ||
+      ((y==thisRoom->pos[0].y || y==thisRoom->pos[1].y) &&
+      (x >= thisRoom->pos[0].x && x <= thisRoom->pos[1].x))) {
+      if (direction==UP) direction = DOWN;
+      else if (direction==DOWN) direction = UP;
+      else if (direction==LEFT) direction = RIGHT;
+      else direction = LEFT;
+      UpdateMonsterPosition(thisMonster, direction);
+  }
 }
 
 void UpdateMonsterPosition(struct monster *thisMonster, int direction) {

@@ -17,9 +17,9 @@
 #define GRID_X                  16
 #define GRID_Y                  4
 #define MAX_ROOM_SIZE_X         12
-#define MAX_ROOM_SIZE_Y         8
+#define MAX_ROOM_SIZE_Y         10
 #define MIN_ROOM_SIZE_X         8
-#define MIN_ROOM_SIZE_Y         6
+#define MIN_ROOM_SIZE_Y         8
 
 #define NO_TILT -1
 #define UP      0
@@ -43,9 +43,7 @@ struct room {
 };
 
 struct player{
-  int                 level;
   int                 health;
-  int                 experience;
   int                 damage;
   struct position     pos;
 };
@@ -76,6 +74,7 @@ struct levelMap {
     int               roomCount;
     int               len;
     int               wid;
+    int               monsterCount;
     struct room       rooms[11];
     struct monster    monsters[11];
     //struct tunnel     tunnels[30];

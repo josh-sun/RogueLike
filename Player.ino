@@ -2,12 +2,18 @@
 
 struct player CreatePlayer (int x, int y){
   struct player usr;
-  usr.level = 1;
   usr.health = 100;
-  usr.experience = 0;
   usr.pos.x = x;
   usr.pos.y = y;
   usr.damage = 100;
+  return usr;
+};
+
+struct player LevelUpPlayer (struct player usr, int x, int y){
+  usr.health += 50;
+  usr.pos.x = x;
+  usr.pos.y = y;
+  usr.damage += 20;
   return usr;
 };
 

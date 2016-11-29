@@ -8,7 +8,6 @@ const uint32_t Potentiometer = PE_3;
 //Forward Declarations
 double *ReadAccelG(double xyz[3]);
 int CalcTiltDirection (double g);
-unsigned long t1;
 
 void InputInit() {
 

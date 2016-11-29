@@ -18,17 +18,17 @@ static int getRandomLength() {
 
 static void setRoomCount(struct levelMap *thisMap) {
 
-  int maximum = thisMap->level+2;
+  int maximum = thisMap->level+1;
   int minimum;
   if (thisMap->level < 5) {
-    minimum = 3;
+    minimum = 2;
   } else {
-    minimum = thisMap->level-1;
+    minimum = thisMap->level/2;
   }
   if (maximum==minimum)
     thisMap->roomCount = maximum;
   else 
-    thisMap->roomCount = rand()%(maximum-minimum)+minimum;
+    thisMap->roomCount = rand()%(maximum-minimum+1)+minimum;
 }
 
 static void setMapSize(struct levelMap *thisMap) {
@@ -202,7 +202,7 @@ static void generateExits(struct levelMap *curr_level) {
   for (int i = 0; i < curr_level->roomCount; i++) {
     curr_level->rooms[i].exits[0].x = rand()%(curr_level->rooms[i].pos[1].x-curr_level->rooms[i].pos[0].x-2)+curr_level->rooms[i].pos[0].x+1;
     curr_level->rooms[i].exits[1].y = rand()%(curr_level->rooms[i].pos[1].y-curr_level->rooms[i].pos[0].y-2)+curr_level->rooms[i].pos[0].y+1;
-    int randNum = rand();
+    int randNum = rand()%2;
     if (randNum==0) {
       curr_level->rooms[i].exits[0].y = curr_level->rooms[i].pos[0].y;
       curr_level->rooms[i].exits[1].x = curr_level->rooms[i].pos[0].x;
@@ -218,6 +218,7 @@ struct levelMap CreateLevel(int level) {
   struct levelMap curr_level;
   curr_level.level = level;
   setRoomCount(&curr_level);
+  curr_level.monsterCount = curr_level.roomCount;
   setRoomDimensions(&curr_level);  
   setMapSize(&curr_level);
   setRoomPosition(&curr_level);

@@ -9,7 +9,7 @@ void ReadInput();
 void AccelerometerInit();
 
 extern const uint32_t Potentiometer;
-unsigned long time1;
+unsigned long t1;
 
 void setup() {
 
@@ -17,6 +17,7 @@ void setup() {
   InputInit();
   AccelerometerInit();
   GameControllerInit();
+  t1 = millis();
 
 }
 
