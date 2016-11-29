@@ -13,7 +13,7 @@
 #define ROOM_HEIGHT     4
 #define DELAY        1500
 
-
+/*
 
 
 void Attack(struct monster thisMonster){
@@ -117,4 +117,4 @@ void EnterFightScene(){
   OrbitOledClearBuffer;
 }
 
-
+*/

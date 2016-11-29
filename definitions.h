@@ -16,10 +16,10 @@
 #define CHAR_PIXEL              8
 #define GRID_X                  16
 #define GRID_Y                  4
-#define MAX_ROOM_SIZE_X         15
-#define MAX_ROOM_SIZE_Y         15
+#define MAX_ROOM_SIZE_X         12
+#define MAX_ROOM_SIZE_Y         8
 #define MIN_ROOM_SIZE_X         8
-#define MIN_ROOM_SIZE_Y         8
+#define MIN_ROOM_SIZE_Y         6
 
 #define NO_TILT -1
 #define UP      0
@@ -37,6 +37,7 @@ struct position {
 
 struct room {
     struct position   pos[2];
+    struct position   exits[2];
     int len;
     int wid;
 };
@@ -46,7 +47,6 @@ struct player{
   int                 health;
   int                 experience;
   int                 damage;
-  int                 spDamage;
   struct position     pos;
 };
 
@@ -65,6 +65,7 @@ struct monster{
   char*             name;
   int               damage;
   int               spDamage;
+  bool              isDead;
   struct  position  pos;
   struct attack     attacks;
 };

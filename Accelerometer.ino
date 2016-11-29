@@ -20,7 +20,8 @@ void readFromI2C(byte address, uint32_t *buffer, int amount);
 #define ADXL345_DATA_SIZE       6             // Data Size From 6 Registers
 #define ADXL345_MAX_READING     2             // Max G Detection
 #define MG_LSB                  0.00390625    // Conversion Factor for Full-Res Setting
-#define TILT_THRESHOLD          15            // Threshold Value for Determining Tilt
+#define TILT_THRESHOLD          10            // Threshold Value for Determining Tilt
+#define SHAKE_THRESHOLD         2
 
 static double offset_X, offset_Y, offset_Z;   // Software Offset Calibration
 
@@ -93,6 +94,9 @@ int CalcTiltDirection(double xyz[3]) {
   return NO_TILT;
 }
 
+bool isShaking (double xyz[3]) {
+  return sqrt(xyz[0]*xyz[0] + xyz[1]*xyz[1] + xyz[2]*xyz[2]) >= SHAKE_THRESHOLD;
+}
 //************************Software Offset Setter*************************
 static void setSoftwareOffset (double x, double y, double z) {
     offset_X = x;

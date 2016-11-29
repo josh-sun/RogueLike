@@ -4,10 +4,12 @@
 
 struct monster CreateMonster(int level, int x, int y) {
   struct monster enemy;
+  enemy.level = level;
   enemy.health = scaleHpWithLevel(level);
   enemy.name = setName();
   enemy.pos.x = x;
   enemy.pos.y = y;
+  enemy.isDead = false;
   enemy.damage = scaleDamageWithLevel(level);
   enemy.spDamage = scaleSpDamageWithLevel(level);
 
@@ -24,13 +26,13 @@ static char *setName() {
   case 1:
     return "Hitler";
   case 2:  
-    return "Kim Jung";
+    return "Kim Jung Un";
   case 3:
-    return "Osama";
+    return "Osama Bin Laden";
   case 4:
     return "Trump";
   case 5:
-    return "Putin";
+    return "Putin God Emperor";
   default:
     return "Putin";
   }

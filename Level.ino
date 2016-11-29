@@ -198,6 +198,22 @@ void generateMonsters(struct levelMap *curr_level){
   }
 }
 
+static void generateExits(struct levelMap *curr_level) {
+  for (int i = 0; i < curr_level->roomCount; i++) {
+    curr_level->rooms[i].exits[0].x = rand()%(curr_level->rooms[i].pos[1].x-curr_level->rooms[i].pos[0].x-2)+curr_level->rooms[i].pos[0].x+1;
+    curr_level->rooms[i].exits[1].y = rand()%(curr_level->rooms[i].pos[1].y-curr_level->rooms[i].pos[0].y-2)+curr_level->rooms[i].pos[0].y+1;
+    int randNum = rand();
+    if (randNum==0) {
+      curr_level->rooms[i].exits[0].y = curr_level->rooms[i].pos[0].y;
+      curr_level->rooms[i].exits[1].x = curr_level->rooms[i].pos[0].x;
+    } else {
+      curr_level->rooms[i].exits[0].y = curr_level->rooms[i].pos[1].y;
+      curr_level->rooms[i].exits[1].x = curr_level->rooms[i].pos[1].x;
+    }
+  }
+  
+}
+
 struct levelMap CreateLevel(int level) {
   struct levelMap curr_level;
   curr_level.level = level;
@@ -205,6 +221,7 @@ struct levelMap CreateLevel(int level) {
   setRoomDimensions(&curr_level);  
   setMapSize(&curr_level);
   setRoomPosition(&curr_level);
+  generateExits(&curr_level);
   generateMonsters(&curr_level);
   printLevelInfo(curr_level);
   return curr_level;
@@ -242,6 +259,17 @@ void printLevelInfo(struct levelMap curr_level) {
     Serial.print(curr_level.rooms[i].pos[1].x);
     Serial.print(",");
     Serial.print(curr_level.rooms[i].pos[1].y);
+    Serial.println(")");
+    
+    Serial.println("Exits: ");
+    Serial.print("(");
+    Serial.print(curr_level.rooms[i].exits[0].x);
+    Serial.print(",");
+    Serial.print(curr_level.rooms[i].exits[0].y);
+    Serial.print(") (");
+    Serial.print(curr_level.rooms[i].exits[1].x);
+    Serial.print(",");
+    Serial.print(curr_level.rooms[i].exits[1].y);
     Serial.println(")");
     
     Serial.print("Monster: (");

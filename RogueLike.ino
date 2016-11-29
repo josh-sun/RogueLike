@@ -10,7 +10,6 @@ void AccelerometerInit();
 
 extern const uint32_t Potentiometer;
 unsigned long time1;
-unsigned long time2;
 
 void setup() {
 
@@ -19,12 +18,9 @@ void setup() {
   AccelerometerInit();
   GameControllerInit();
 
-  
 }
 
 void loop() {
   ReadInput();
   PageSelection();
-  delay(200);
-
 }

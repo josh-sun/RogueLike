@@ -7,8 +7,7 @@ struct player CreatePlayer (int x, int y){
   usr.experience = 0;
   usr.pos.x = x;
   usr.pos.y = y;
-  usr.damage = 50;
-  usr.spDamage = 100;
+  usr.damage = 100;
   return usr;
 };
 

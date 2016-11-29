@@ -35,15 +35,22 @@ static struct gameState {
 } ActiveGame;
 
 static struct fightState {
-  struct monster      enemy;
+  struct monster      *enemy;
+  int                 dodgeDirection;
   bool                playerDodged;
-  bool                monsterDodged;
+  bool                playerWin;
+  bool                enemyWin;
+  int                 enemyAttackType;
 } FightStatus;
 
 static enum FightScenes {
   Encounter,
   DrawMonster,
-  Battle,
+  EnemyAttack,
+  EnemyAttackResult,
+  PlayerAttack,
+  PlayerAttackResult,
+  BattleResult,
 } CurrentFightScene = Encounter;
 
 
@@ -53,56 +60,269 @@ static enum GameMenu {
   Fight,
 } gameCurrentPage = Welcome;
 
+static void printCurrentStatus() {
+  Serial.println("Current Game Status");
+  Serial.println("*Player*: ");
+  Serial.print("Level: ");
+  Serial.println(ActiveGame.usr.level);
+  Serial.print("Health: ");
+  Serial.println(ActiveGame.usr.health);
+  Serial.print("Experience: ");
+  Serial.println(ActiveGame.usr.experience);
+  Serial.print("Damage: ");
+  Serial.println(ActiveGame.usr.damage);
+  Serial.println("*Monster*: ");
+  Serial.print("Level: ");
+  Serial.println(FightStatus.enemy->level);
+  Serial.print("Name: ");
+  Serial.println(FightStatus.enemy->name);
+  Serial.print("Health: ");
+  Serial.println(FightStatus.enemy->health);
+  Serial.print("Damage: ");
+  Serial.println(FightStatus.enemy->damage);
+  Serial.println("");
+}
+
+static char *intToCharArray(char buf[], int num) {
+  String numStr = String(num);
+  numStr.toCharArray(buf,4);
+  return buf;
+}
+
 static void handleFightScene(int scene){
   switch (scene) {
     case Encounter:
+      FightStatus.dodgeDirection = NO_TILT;
+      FightStatus.playerWin = false;
+      FightStatus.enemyWin = false;
       OrbitOledClearBuffer();
-      OrbitOledMoveTo(5,5);
-      OrbitOledDrawString("A wild ");
-      OrbitOledDrawString(FightStatus.enemy.name);
-      OrbitOledDrawString(" has appeared!");
+      OrbitOledMoveTo(0,2);
+      OrbitOledDrawString("A Wild ");
+      OrbitOledMoveTo(0,12);
+      OrbitOledDrawString(FightStatus.enemy->name);
+      OrbitOledMoveTo(0,22);
+      OrbitOledDrawString("Has Appeared!");
+      if (gameInputState.buttons[0].isRising) {
+        CurrentFightScene = FightScenes((int)CurrentFightScene+1);
+      }
       break;
     case DrawMonster:
       OrbitOledClearBuffer();
-      /* 
-      char monster1 [ROOM_HEIGHT][ROOM_WIDTH]= 
-      { {'.','.','.','.','.','^','_','_','_','^','.','.','.','.','.','.'},
-        {'.','.','.','.','.','|','*',' ','*','|','.','.','.','.','.','.'},
-        {'.','.','.','.','.','|',' ','^',' ','|','.','.','.','.','.','.'},
-        {'.','.','.','_','_','_','-','-','-','_','_','_','.','.','.','.'}
-      }; //working on doing this with pixels instead
-      for (int i = 0; i < ROOM_WIDTH; i++ ) {
-        for (int j = 0; j < ROOM_HEIGHT; j++) {
-          OrbitOledMoveTo(i*CHAR_PIXEL,j*CHAR_PIXEL);
-          OrbitOledDrawChar(monster1[j][i]);
-        }
-      }
-      */
-      break;
-    case Battle:
-
-  
-                                
-      OrbitOledMoveTo(0,0);
-      //attack message
-      
     
-      /*
-      if(thisMonster.level < 2) 
-        OrbitOledDrawString("%c", basicAttack);
-      else if(thisMonster.level < 6) 
-        OrbitOledDrawString("%c", specialAttacks[rand() % 4]);
-      else 
-        OrbitOledDrawString("%c", abilities[rand() % 2]);
-    */
+      OrbitOledMoveTo(45,5);    //head
+      OrbitOledDrawRect(83,25); 
+      OrbitOledMoveTo(46,6);
+      OrbitOledDrawRect(82,24);
+      
+      OrbitOledMoveTo(45,2);    //ears
+      OrbitOledLineTo(45,5);
+      OrbitOledMoveTo(45,2);
+      OrbitOledLineTo(52,5);
+    
+      OrbitOledMoveTo(83,2);
+      OrbitOledLineTo(83,5);
+      OrbitOledMoveTo(83,2);
+      OrbitOledLineTo(76,5);
+    
+      OrbitOledMoveTo(59,12);   //eyes
+      OrbitOledDrawRect(55,16);
+      OrbitOledMoveTo(69,12);
+      OrbitOledDrawRect(73,16);
+    
+      OrbitOledMoveTo(64,17);   //mouth
+      OrbitOledLineTo(59,23);
+      OrbitOledMoveTo(64,17);
+      OrbitOledLineTo(69,23);
+    
+      OrbitOledMoveTo(55,8);    //eyebrows
+      OrbitOledLineTo(61,12);
+      OrbitOledMoveTo(73,8);
+      OrbitOledLineTo(67,12);
+    
+      OrbitOledMoveTo(34,32);   //arms
+      OrbitOledLineTo(28,17);
+      OrbitOledMoveTo(37,32);
+      OrbitOledLineTo(31,17);
+      OrbitOledMoveTo(91,32);
+      OrbitOledLineTo(97,17);
+      OrbitOledMoveTo(94,32);
+      OrbitOledLineTo(100,17);
+    
+      OrbitOledMoveTo(28,17);
+      OrbitOledLineTo(22,11);
+      OrbitOledMoveTo(22,11);
+      OrbitOledLineTo(28,13);
+      OrbitOledMoveTo(28,13);
+      OrbitOledLineTo(27,6);
+      OrbitOledMoveTo(27,6);
+      OrbitOledLineTo(29,11);
+      OrbitOledMoveTo(29,11);
+      OrbitOledLineTo(31,8);
+      OrbitOledMoveTo(31,8);
+      OrbitOledLineTo(31,17);
+    
+      OrbitOledMoveTo(100,17);
+      OrbitOledLineTo(106,11);
+      OrbitOledMoveTo(106,11);
+      OrbitOledLineTo(100,13);
+      OrbitOledMoveTo(100,13);
+      OrbitOledLineTo(101,6);
+      OrbitOledMoveTo(101,6);
+      OrbitOledLineTo(99,11);
+      OrbitOledMoveTo(99,11);
+      OrbitOledLineTo(97,8);
+      OrbitOledMoveTo(97,8);
+      OrbitOledMoveTo(97,17);
+      if (gameInputState.buttons[0].isRising) {
+        CurrentFightScene = FightScenes((int)CurrentFightScene+1);
+      }
+      break;
+    case EnemyAttack:
+    {
       OrbitOledClearBuffer();
-  
+      OrbitOledMoveTo(0,0);
+      OrbitOledDrawString(FightStatus.enemy->name);
+      OrbitOledMoveTo(0,12);
+      FightStatus.enemyAttackType = rand();
+      if (FightStatus.enemyAttackType ==0)
+        OrbitOledDrawString(FightStatus.enemy->attacks.basicAttack);
+      else {
+        int specialAttackType = rand()%3;
+        OrbitOledDrawString(FightStatus.enemy->attacks.spAttacks[specialAttackType]);
+      }
+      OrbitOledUpdate();
+      delay(1500);
+      OrbitOledClearBuffer();
+      OrbitOledMoveTo(0,0);
+      OrbitOledDrawString("Dodge ");
+      FightStatus.dodgeDirection = rand()%(3);
+      switch (FightStatus.dodgeDirection) {
+      case UP:
+        OrbitOledDrawString("Up NOW!");
+        break;
+      case DOWN:
+        OrbitOledDrawString("Down NOW!");
+        break;
+      case LEFT:
+        OrbitOledDrawString("Left NOW!");
+        break;
+      case RIGHT:
+        OrbitOledDrawString("Right NOW!");
+        break;   
+      default:
+        break;
+      }
+      OrbitOledUpdate();
+      int t1 = millis();
+      while (millis()-t1<1000) {
+        double xyz[3];
+        gameInputState.tiltDirection = CalcTiltDirection(ReadAccelG(xyz));
+      }
+      if (gameInputState.tiltDirection == FightStatus.dodgeDirection)
+        FightStatus.playerDodged = true;
+      else {
+        FightStatus.playerDodged = false;
+        if (FightStatus.enemyAttackType == 0)
+          ActiveGame.usr.health-=FightStatus.enemy->damage;
+        else
+          ActiveGame.usr.health-=FightStatus.enemy->spDamage;
+      }
+      CurrentFightScene = FightScenes((int)CurrentFightScene+1);
+    }
+    case EnemyAttackResult:
+    {
+      OrbitOledClearBuffer();
+      if (FightStatus.playerDodged) {
+        OrbitOledMoveTo(0,2);
+        OrbitOledDrawString("Player Dodged");
+        OrbitOledMoveTo(0,12);
+        OrbitOledDrawString("Monster's Attack!");
+        printCurrentStatus();
+      } else {
+        OrbitOledMoveTo(0,2);
+        OrbitOledDrawString("Player Was Hit!");
+        OrbitOledMoveTo(0,12);
+        OrbitOledDrawString("Damage Done: ");
+        OrbitOledMoveTo(0,22);
+        char buf[4];
+        if (FightStatus.enemyAttackType == 0)
+          OrbitOledDrawString(intToCharArray(buf, FightStatus.enemy->damage));
+        else 
+          OrbitOledDrawString(intToCharArray(buf, FightStatus.enemy->spDamage));
+      }
+      if (gameInputState.buttons[0].isRising && ActiveGame.usr.health > 0) {
+        printCurrentStatus();
+        CurrentFightScene = FightScenes((int)CurrentFightScene+1);
+      }
       break;
-    default:
+    }
+    case PlayerAttack:
+    {
+      OrbitOledClearBuffer();
+      OrbitOledMoveTo(0,2);
+      OrbitOledDrawString("Your Turn:");
+      OrbitOledMoveTo(0,12);
+      OrbitOledDrawString("Shake to Attack!");
+      double xyz[3];
+      
+      if (isShaking(ReadAccelG(xyz))) {
+        CurrentFightScene = FightScenes((int)CurrentFightScene+1);
+        FightStatus.enemy->health-=ActiveGame.usr.damage;
+      }
+      
       break;
+    }
+    case PlayerAttackResult:
+    {
+      OrbitOledClearBuffer();
+      OrbitOledMoveTo(0,2);
+      OrbitOledDrawString("Monster Was Hit!");
+      OrbitOledMoveTo(0,12);
+      OrbitOledDrawString("Damage Done: ");
+      OrbitOledMoveTo(0,22);
+      char buf[4];
+      OrbitOledDrawString(intToCharArray(buf, ActiveGame.usr.damage));
+      if (gameInputState.buttons[0].isRising && FightStatus.enemy->health > 0) {
+        printCurrentStatus();
+        CurrentFightScene = FightScenes((int)CurrentFightScene-3);
+      }
+      break;
+    }
+    case BattleResult:
+    {
+     if (FightStatus.playerWin) {
+      FightStatus.enemy->isDead = true;
+      OrbitOledClearBuffer();
+      OrbitOledMoveTo(0,2);
+      OrbitOledDrawString("The Monster Has");
+      OrbitOledMoveTo(0,12);
+      OrbitOledDrawString("Been Slain!");
+      if (gameInputState.buttons[0].isRising) {
+        gameCurrentPage = Game;
+      }
+     }
+     if (FightStatus.enemyWin) {
+      OrbitOledClearBuffer();
+      OrbitOledMoveTo(0,2);
+      OrbitOledDrawString("The Player Has");
+      OrbitOledMoveTo(0,12);
+      OrbitOledDrawString("Lost the Game!");
+      OrbitOledMoveTo(0,22);
+      OrbitOledDrawString("RIP");
+      if (gameInputState.buttons[0].isRising) {
+        gameCurrentPage = Welcome;
+      }
+     }
+     break;
+    }
   }
-  if (gameInputState.buttons[0].isRising) {
-    CurrentFightScene = FightScenes((int)CurrentFightScene+1);
+  if (ActiveGame.usr.health <= 0) {
+    FightStatus.enemyWin = true;
+    CurrentFightScene = BattleResult;
+  }
+  if (FightStatus.enemy->health <= 0) {
+    FightStatus.playerWin = true;
+    CurrentFightScene = BattleResult;
   }
 }
 
@@ -118,7 +338,7 @@ static void handleInput() {
   int uy = ActiveGame.usr.pos.y;
 
   int surroundings[3][3] = {0};
-  struct monster surroundingMonsters[3][3];
+  struct monster *surroundingMonsters[3][3];
   
   for (int x = ux-1; x <= ux+1; x++) {
     for (int y = uy-1; y <= uy+1; y++) {
@@ -133,9 +353,9 @@ static void handleInput() {
       for (int i = 0; i < ActiveGame.curr_level.roomCount; i++) {
         
         //monsters
-        if (x==ActiveGame.curr_level.monsters[i].pos.x && y==ActiveGame.curr_level.monsters[i].pos.y) {
+        if (!ActiveGame.curr_level.monsters[i].isDead && x==ActiveGame.curr_level.monsters[i].pos.x && y==ActiveGame.curr_level.monsters[i].pos.y) {
           surroundings[y-uy+1][x-ux+1] = 2;
-          surroundingMonsters[y-uy+1][x-ux+1] = ActiveGame.curr_level.monsters[i];
+          surroundingMonsters[y-uy+1][x-ux+1] = &ActiveGame.curr_level.monsters[i];
           break;
         }
 
@@ -151,7 +371,7 @@ static void handleInput() {
       }
     }
   }
-  /*
+  
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++) {
       Serial.print(surroundings[i][j]);
@@ -160,7 +380,7 @@ static void handleInput() {
     Serial.println("");
   }
   Serial.println("");
-  */
+  
   switch (gameInputState.tiltDirection) {
     case UP:
       if(surroundings[0][1]==0)
@@ -241,10 +461,16 @@ static void renderView() {
     int ry2 = ActiveGame.curr_level.rooms[i].pos[1].y;
 
     //monster position on game grid
-    int mx = ActiveGame.curr_level.monsters[i].pos.x;
-    int my = ActiveGame.curr_level.monsters[i].pos.y;
+    int mx, my;
+    if (ActiveGame.curr_level.monsters[i].isDead) {
+      mx = -999;
+      my = -999;
+    } else {
+      mx = ActiveGame.curr_level.monsters[i].pos.x;
+      my = ActiveGame.curr_level.monsters[i].pos.y;
+    }
 
-    //If
+    //If room overlap with view
     if (roomOverlapsWithScreen(
           ActiveGame.curr_level.rooms[i].pos,
           ActiveGame.usr.pos.x-8,
@@ -294,7 +520,7 @@ static void renderView() {
 
 
 static void handlePageWelcome(){
- 
+  OrbitOledClearBuffer();
   OrbitOledMoveTo(8, 0);
   OrbitOledDrawString("--Dungeon RPG--");
   
