@@ -1,5 +1,4 @@
 
-
 const uint32_t SwitchCount = 2;
 const uint32_t ButtonCount = 2;
 const uint32_t Switches[SwitchCount] = { PA_7, PA_6 };
@@ -9,18 +8,15 @@ const uint32_t Potentiometer = PE_3;
 //Forward Declarations
 double *ReadAccelG(double xyz[3]);
 int CalcTiltDirection (double g);
-void AccelerometerInit();
-
 
 void InputInit() {
-  AccelerometerInit();
 
   for(int i = 0; i < SwitchCount; ++i )
     pinMode(Switches[i], INPUT);
   for(int i = 0; i < ButtonCount; ++i )
     pinMode(Buttons[i], INPUT);
   
-  srand((7+analogRead(Potentiometer)) * 347);
+  srand((420+analogRead(Potentiometer)) * millis() * 1000 / 69);
   
 }
 

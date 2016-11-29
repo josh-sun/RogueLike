@@ -1,20 +1,15 @@
 #include <math.h>
 #include "definitions.h"
 
-#define MAX_ROOM_SIZE_X         15
-#define MAX_ROOM_SIZE_Y         15
-#define MIN_ROOM_SIZE_X         8
-#define MIN_ROOM_SIZE_Y         8
 
-//forward declarations
-struct monster CreateMonster(int level, int x, int y);
-struct player  CreatePlayer (int x, int y);
+
 
 /*
 struct tunnel {
   struct position     endPos[2];
 };
 */
+
 
 
 static int getRandomLength() {
@@ -195,11 +190,11 @@ static void generateTunnels(struct levelMap *thisMap) {
 }
 */
 
-static void generateRandMonsters(struct levelMap *thisMap) {
-  for (int i = 0 ; i < thisMap->roomCount; i++) {
-    int x = rand()%(thisMap->rooms[i].pos[1].x-thisMap->rooms[i].pos[0].x-2)+thisMap->rooms[i].pos[0].x+1;
-    int y = rand()%(thisMap->rooms[i].pos[1].y-thisMap->rooms[i].pos[0].y-2)+thisMap->rooms[i].pos[0].y+1;
-    thisMap->monsters[i] = CreateMonster(thisMap->level, x,y);
+void generateMonsters(struct levelMap *curr_level){
+  for (int i = 0 ; i < curr_level->roomCount; i++) {
+    int x = rand()%(curr_level->rooms[i].pos[1].x-curr_level->rooms[i].pos[0].x-2)+curr_level->rooms[i].pos[0].x+1;
+    int y = rand()%(curr_level->rooms[i].pos[1].y-curr_level->rooms[i].pos[0].y-2)+curr_level->rooms[i].pos[0].y+1;
+    curr_level->monsters[i] = CreateMonster(curr_level->level, x,y);
   }
 }
 
@@ -210,8 +205,7 @@ struct levelMap CreateLevel(int level) {
   setRoomDimensions(&curr_level);  
   setMapSize(&curr_level);
   setRoomPosition(&curr_level);
-  generateRandMonsters(&curr_level);
-  curr_level.usr = CreatePlayer(curr_level.rooms[0].pos[0].x+3, curr_level.rooms[0].pos[0].y+3);
+  generateMonsters(&curr_level);
   printLevelInfo(curr_level);
   return curr_level;
 }
@@ -225,11 +219,13 @@ void printLevelInfo(struct levelMap curr_level) {
   Serial.print(curr_level.len);
   Serial.print(" X ");
   Serial.println(curr_level.wid);
+  /*
   Serial.print("Player: (");
   Serial.print(curr_level.usr.pos.x);
   Serial.print(",");
   Serial.print(curr_level.usr.pos.y);
   Serial.println(")");
+  */
   for (int i = 0; i < curr_level.roomCount; i++) {
     Serial.print("Room ");
     Serial.print(i+1);
@@ -247,12 +243,14 @@ void printLevelInfo(struct levelMap curr_level) {
     Serial.print(",");
     Serial.print(curr_level.rooms[i].pos[1].y);
     Serial.println(")");
+    
     Serial.print("Monster: (");
     Serial.print(curr_level.monsters[i].pos.x);
     Serial.print(",");
     Serial.print(curr_level.monsters[i].pos.y);
     Serial.println(")");
     Serial.println("");
+    
   }
   Serial.println("");
 }

@@ -25,6 +25,7 @@ void readFromI2C(byte address, uint32_t *buffer, int amount);
 static double offset_X, offset_Y, offset_Z;   // Software Offset Calibration
 
 //************************Initialization*************************
+
 void AccelerometerInit() {
     Wire_utils_init();
     powerOn(0x08);

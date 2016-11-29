@@ -1,5 +1,17 @@
 #include "definitions.h"
 
+struct player CreatePlayer (int x, int y){
+  struct player usr;
+  usr.level = 1;
+  usr.health = 100;
+  usr.experience = 0;
+  usr.pos.x = x;
+  usr.pos.y = y;
+  usr.damage = 50;
+  usr.spDamage = 100;
+  return usr;
+};
+
 void updatePlayerPosition(struct player *usr, int direction) {
   switch(direction) {
   case UP:
@@ -19,14 +31,6 @@ void updatePlayerPosition(struct player *usr, int direction) {
   }
 }
 
-struct player CreatePlayer (int x, int y){
-  struct player usr;
-  usr.level = 1;
-  usr.health = 100;
-  usr.experience = 0;
-  usr.pos.x = x;
-  usr.pos.y = y;
-  return usr;
-};
+
 
 

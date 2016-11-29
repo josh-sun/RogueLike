@@ -2,37 +2,46 @@
 
 
 
-
 struct monster CreateMonster(int level, int x, int y) {
   struct monster enemy;
   enemy.health = scaleHpWithLevel(level);
   enemy.name = setName();
   enemy.pos.x = x;
   enemy.pos.y = y;
+  enemy.damage = scaleDamageWithLevel(level);
+  enemy.spDamage = scaleSpDamageWithLevel(level);
+
   return enemy;
 }
 
-static char setName() {
+static char setAttacks(struct attack *attacks) {
+
+}
+
+static char *setName() {
   int choice = rand()%(4)+1;
   switch (choice) {
   case 1:
-    return 'G';
-    break;
+    return "Hitler";
   case 2:  
-    return 'K';
-    break;
+    return "Kim Jung";
   case 3:
-    return 'O';
-    break;
+    return "Osama";
   case 4:
-    return 'T';
-    break;
+    return "Trump";
   case 5:
-    return 'P';
-    break;
+    return "Putin";
   default:
-    break;
+    return "Putin";
   }
+}
+
+static int scaleDamageWithLevel(int level) {
+  return level*25;
+}
+
+static int scaleSpDamageWithLevel(int level) {
+  return level*50+rand()%20;
 }
 
 

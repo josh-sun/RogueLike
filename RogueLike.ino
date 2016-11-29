@@ -2,10 +2,11 @@
 
 
 //Forward Declarations
-void GameUIInit();
+void GameControllerInit();
 void RenderView();
 void InputInit();
 void ReadInput();
+void AccelerometerInit();
 
 extern const uint32_t Potentiometer;
 unsigned long time1;
@@ -14,14 +15,9 @@ unsigned long time2;
 void setup() {
 
   Serial.begin(9600);
-  
-
-  
   InputInit();
-  srand(analogRead(Potentiometer));
-  
-  GameUIInit();
-  
+  AccelerometerInit();
+  GameControllerInit();
 
   
 }
