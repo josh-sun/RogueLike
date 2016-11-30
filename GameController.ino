@@ -89,6 +89,7 @@ static char *intToCharArray(char buf[], int num) {
   return buf;
 }
 
+
 static void handleFightScene(int scene){
   switch (scene) {
     case Encounter:
@@ -108,71 +109,9 @@ static void handleFightScene(int scene){
       break;
     case DrawMonster:
       OrbitOledClearBuffer();
+      DrawMonst();
     
-      OrbitOledMoveTo(45,5);    //head
-      OrbitOledDrawRect(83,25); 
-      OrbitOledMoveTo(46,6);
-      OrbitOledDrawRect(82,24);
       
-      OrbitOledMoveTo(45,2);    //ears
-      OrbitOledLineTo(45,5);
-      OrbitOledMoveTo(45,2);
-      OrbitOledLineTo(52,5);
-    
-      OrbitOledMoveTo(83,2);
-      OrbitOledLineTo(83,5);
-      OrbitOledMoveTo(83,2);
-      OrbitOledLineTo(76,5);
-    
-      OrbitOledMoveTo(59,12);   //eyes
-      OrbitOledDrawRect(55,16);
-      OrbitOledMoveTo(69,12);
-      OrbitOledDrawRect(73,16);
-    
-      OrbitOledMoveTo(64,17);   //mouth
-      OrbitOledLineTo(59,23);
-      OrbitOledMoveTo(64,17);
-      OrbitOledLineTo(69,23);
-    
-      OrbitOledMoveTo(55,8);    //eyebrows
-      OrbitOledLineTo(61,12);
-      OrbitOledMoveTo(73,8);
-      OrbitOledLineTo(67,12);
-    
-      OrbitOledMoveTo(34,32);   //arms
-      OrbitOledLineTo(28,17);
-      OrbitOledMoveTo(37,32);
-      OrbitOledLineTo(31,17);
-      OrbitOledMoveTo(91,32);
-      OrbitOledLineTo(97,17);
-      OrbitOledMoveTo(94,32);
-      OrbitOledLineTo(100,17);
-    
-      OrbitOledMoveTo(28,17);
-      OrbitOledLineTo(22,11);
-      OrbitOledMoveTo(22,11);
-      OrbitOledLineTo(28,13);
-      OrbitOledMoveTo(28,13);
-      OrbitOledLineTo(27,6);
-      OrbitOledMoveTo(27,6);
-      OrbitOledLineTo(29,11);
-      OrbitOledMoveTo(29,11);
-      OrbitOledLineTo(31,8);
-      OrbitOledMoveTo(31,8);
-      OrbitOledLineTo(31,17);
-    
-      OrbitOledMoveTo(100,17);
-      OrbitOledLineTo(106,11);
-      OrbitOledMoveTo(106,11);
-      OrbitOledLineTo(100,13);
-      OrbitOledMoveTo(100,13);
-      OrbitOledLineTo(101,6);
-      OrbitOledMoveTo(101,6);
-      OrbitOledLineTo(99,11);
-      OrbitOledMoveTo(99,11);
-      OrbitOledLineTo(97,8);
-      OrbitOledMoveTo(97,8);
-      OrbitOledMoveTo(97,17);
       if (gameInputState.buttons[0].isRising) {
         CurrentFightScene = FightScenes((int)CurrentFightScene+1);
       }
@@ -614,6 +553,56 @@ static void animateMonster() {
   }
 }
 
+static void DrawLine(int x, int y, int a, int b){
+  OrbitOledMoveTo(x,y);
+  OrbitOledLineTo(a,b);
+}
+
+static void DrawRect(int x, int y, int a, int b){
+  OrbitOledMoveTo(x,y);
+  OrbitOledDrawRect(a,b);
+}
+
+static void DrawMonst(){
+      
+      DrawRect(45,5,83,25);     //head
+      DrawRect(46,6,82,24);
+
+      DrawLine(45,2,45,5);      //ears
+      DrawLine(45,2,52,5);
+
+      DrawLine(83,2,83,5);
+      DrawLine(83,2,76,5);
+      
+      DrawRect(59,12,55,16);    //eyes
+      DrawRect(69,12,73,16);
+
+      DrawLine(64,17,59,23);   
+      DrawLine(64,17,69,23);
+    
+      DrawLine(55,8,61,12);
+      DrawLine(73,8,67,12);
+      
+      DrawLine(34,32,28,17);
+      DrawLine(37,32,31,17);
+      DrawLine(91,32,97,17);
+      DrawLine(94,32,100,17);
+      
+      DrawLine(28,17,22,11);     //left hand
+      DrawLine(22,11,28,13);
+      DrawLine(28,13,27,6);
+      DrawLine(27,6,29,11);
+      DrawLine(29,11,31,8);
+      DrawLine(31,8,31,17);
+     
+      DrawLine(100,17,106,11);   //right hand
+      DrawLine(106,11,100,13);
+      DrawLine(100,13,101,6);
+      DrawLine(101,6,99,11);
+      DrawLine(99,11,97,8);
+      DrawLine(97,8,97,17);
+}
+
 static void handlePageWelcome(){
   OrbitOledClearBuffer();
   OrbitOledMoveTo(8, 0);
@@ -693,7 +682,4 @@ void GameControllerInit() {
   } while (x==ActiveGame.curr_level.monsters[0].pos.x && y==ActiveGame.curr_level.monsters[0].pos.y);
   ActiveGame.usr = CreatePlayer(x,y);
 }
-
-
-
 
