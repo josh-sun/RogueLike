@@ -68,6 +68,10 @@ struct monster{
   struct attack     attacks;
 };
 
+struct tunnel {
+  struct position     endPos[2];
+};
+
 
 struct levelMap {
     int               level;
@@ -77,9 +81,8 @@ struct levelMap {
     int               monsterCount;
     struct room       rooms[11];
     struct monster    monsters[11];
-    //struct tunnel     tunnels[30];
+    struct tunnel     tunnels[10];
 } ;
-
 
 
 

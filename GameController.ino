@@ -15,6 +15,9 @@ struct player CreatePlayer (int x, int y);
 struct monster CreateMonster(int level, int x, int y);
 struct levelMap CreateLevel(int level);
 void updatePlayerPosition(struct player *usr, int direction);
+void roam(struct room *thisRoom, struct monster *thisMonster);
+void follow(struct player usr, struct monster *thisMonster, struct room *thisRoom);
+struct player LevelUpPlayer (struct player usr, int x, int y);
 
 unsigned long t2 = millis();
 
@@ -110,72 +113,6 @@ static void handleFightScene(int scene){
     case DrawMonster:
       OrbitOledClearBuffer();
       DrawMonst();
-    
-      
-<<<<<<< Updated upstream
-=======
-      OrbitOledMoveTo(45,2);    //ears
-      OrbitOledLineTo(45,5);
-      OrbitOledMoveTo(45,2);
-      OrbitOledLineTo(52,5);
-    
-      OrbitOledMoveTo(83,2);
-      OrbitOledLineTo(83,5);
-      OrbitOledMoveTo(83,2);
-      OrbitOledLineTo(76,5);
-    
-      OrbitOledMoveTo(59,12);   //eyes
-      OrbitOledDrawRect(55,16);
-      OrbitOledMoveTo(69,12);
-      OrbitOledDrawRect(73,16);
-    
-      OrbitOledMoveTo(64,17);   //mouth
-      OrbitOledLineTo(59,23);
-      OrbitOledMoveTo(64,17);
-      OrbitOledLineTo(69,23);
-    
-      OrbitOledMoveTo(55,8);    //eyebrows
-      OrbitOledLineTo(61,12);
-      OrbitOledMoveTo(73,8);
-      OrbitOledLineTo(67,12);
-    
-      OrbitOledMoveTo(34,32);   //arms
-      OrbitOledLineTo(28,17);
-      OrbitOledMoveTo(37,32);
-      OrbitOledLineTo(31,17);
-      OrbitOledMoveTo(91,32);
-      OrbitOledLineTo(97,17);
-      OrbitOledMoveTo(94,32);
-      OrbitOledLineTo(100,17);
-    
-      OrbitOledMoveTo(28,17);
-      OrbitOledLineTo(22,11);
-      OrbitOledMoveTo(22,11);
-      OrbitOledLineTo(28,13);
-      OrbitOledMoveTo(28,13);
-      OrbitOledLineTo(27,6);
-      OrbitOledMoveTo(27,6);
-      OrbitOledLineTo(29,11);
-      OrbitOledMoveTo(29,11);
-      OrbitOledLineTo(31,8);
-      OrbitOledMoveTo(31,8);
-      OrbitOledLineTo(31,17);
-    
-      OrbitOledMoveTo(100,17);
-      OrbitOledLineTo(106,11);
-      OrbitOledMoveTo(106,11);
-      OrbitOledLineTo(100,13);
-      OrbitOledMoveTo(100,13);
-      OrbitOledLineTo(101,6);
-      OrbitOledMoveTo(101,6);
-      OrbitOledLineTo(99,11);
-      OrbitOledMoveTo(99,11);
-      OrbitOledLineTo(97,8);
-      OrbitOledMoveTo(97,8);
-      OrbitOledMoveTo(97,17);
-      OrbitOledMoveTo(100,22);
-      OrbitOledDrawString("-->");
->>>>>>> Stashed changes
       if (gameInputState.buttons[0].isRising) {
         CurrentFightScene = FightScenes((int)CurrentFightScene+1);
       }
@@ -387,11 +324,13 @@ static void handleCollision() {
       for (int i = 0; i < ActiveGame.curr_level.roomCount; i++) {
 
         //exits
+        /*
         if ((x==ActiveGame.curr_level.rooms[i].exits[0].x && y==ActiveGame.curr_level.rooms[i].exits[0].y) ||
             (x==ActiveGame.curr_level.rooms[i].exits[1].x && y==ActiveGame.curr_level.rooms[i].exits[1].y))
         {
           break;
         }
+        */
         
         if (!ActiveGame.curr_level.monsters[i].isDead && ActiveGame.usr.pos.x==ActiveGame.curr_level.monsters[i].pos.x && ActiveGame.usr.pos.y==ActiveGame.curr_level.monsters[i].pos.y){
           gameCurrentPage = Fight;
@@ -567,13 +506,15 @@ static void renderView() {
           if (x >= sx1 && x <=sx2 && y>=sy1 && y<=sy2 && 
              (x!=mx || y!=my)) 
           {
+            /*
             if ((x==ActiveGame.curr_level.rooms[i].exits[0].x && y==ActiveGame.curr_level.rooms[i].exits[0].y) ||
                 (x==ActiveGame.curr_level.rooms[i].exits[1].x && y==ActiveGame.curr_level.rooms[i].exits[1].y)) 
             {
               OrbitOledMoveTo((x-sx1)*CHAR_PIXEL, (y-sy1)*CHAR_PIXEL);
               OrbitOledDrawChar('+');
             } 
-            else if ((x==rx1 || x==rx2) && (y!=ry1 && y!=ry2)) 
+            */
+            if ((x==rx1 || x==rx2) && (y!=ry1 && y!=ry2)) 
             {
                 OrbitOledMoveTo((x-sx1)*CHAR_PIXEL, (y-sy1)*CHAR_PIXEL);
                 OrbitOledDrawChar('|');
@@ -591,6 +532,38 @@ static void renderView() {
           }
         }
       }
+      //draw tunnels
+      for (int z = 0 ; z < ActiveGame.curr_level.roomCount-1; z++) {
+        int tx1 = ActiveGame.curr_level.tunnels[z].endPos[0].x;
+        int ty1 = ActiveGame.curr_level.tunnels[z].endPos[0].y;
+        int tx2 = ActiveGame.curr_level.tunnels[z].endPos[1].x;
+        int ty2 = ActiveGame.curr_level.tunnels[z].endPos[1].y;
+        for (int x = tx1; x <=tx2; x++) {
+          if (x >= sx1 && x <=sx2) {
+            if (x==tx1) {
+              OrbitOledMoveTo((x-sx1)*CHAR_PIXEL, (ty1-sy1)*CHAR_PIXEL);
+              OrbitOledDrawChar('+');
+            } else {
+              OrbitOledMoveTo((x-sx1)*CHAR_PIXEL, (ty1-sy1)*CHAR_PIXEL);
+              OrbitOledDrawChar('*');
+            }
+          }
+        }
+        for (int y = ty1; y <=tx2; y++) {
+          if (y >= sy1 && y <=sy2) {
+            if (y==ty1) {
+              OrbitOledMoveTo((tx1-sx1)*CHAR_PIXEL, (y-sy1)*CHAR_PIXEL);
+              OrbitOledDrawChar('+');
+            } else {
+              OrbitOledMoveTo((tx1-sx1)*CHAR_PIXEL, (y-sy1)*CHAR_PIXEL);
+              OrbitOledDrawChar('*');             
+            }
+          }
+        }
+
+         
+      }
+      
     }
   }
 
