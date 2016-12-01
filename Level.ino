@@ -39,7 +39,6 @@ static void setMapSize(struct levelMap *thisMap) {
   }
   thisMap->len = sum_x;
   thisMap->wid = sum_y;
-  //Serial.println(thisMap->roomCount);
 }
 
 
@@ -219,8 +218,10 @@ struct levelMap CreateLevel(int level) {
   curr_level.level = level;
   setRoomCount(&curr_level);
   curr_level.monsterCount = curr_level.roomCount;
-  setRoomDimensions(&curr_level);  
-  setMapSize(&curr_level);
+  setRoomDimensions(&curr_level); 
+  do { 
+    setMapSize(&curr_level);
+  } while (curr_level.wid > 10000 || curr_level.len > 10000);
   setRoomPosition(&curr_level);
   generateExits(&curr_level);
   generateMonsters(&curr_level);

@@ -112,6 +112,70 @@ static void handleFightScene(int scene){
       DrawMonst();
     
       
+<<<<<<< Updated upstream
+=======
+      OrbitOledMoveTo(45,2);    //ears
+      OrbitOledLineTo(45,5);
+      OrbitOledMoveTo(45,2);
+      OrbitOledLineTo(52,5);
+    
+      OrbitOledMoveTo(83,2);
+      OrbitOledLineTo(83,5);
+      OrbitOledMoveTo(83,2);
+      OrbitOledLineTo(76,5);
+    
+      OrbitOledMoveTo(59,12);   //eyes
+      OrbitOledDrawRect(55,16);
+      OrbitOledMoveTo(69,12);
+      OrbitOledDrawRect(73,16);
+    
+      OrbitOledMoveTo(64,17);   //mouth
+      OrbitOledLineTo(59,23);
+      OrbitOledMoveTo(64,17);
+      OrbitOledLineTo(69,23);
+    
+      OrbitOledMoveTo(55,8);    //eyebrows
+      OrbitOledLineTo(61,12);
+      OrbitOledMoveTo(73,8);
+      OrbitOledLineTo(67,12);
+    
+      OrbitOledMoveTo(34,32);   //arms
+      OrbitOledLineTo(28,17);
+      OrbitOledMoveTo(37,32);
+      OrbitOledLineTo(31,17);
+      OrbitOledMoveTo(91,32);
+      OrbitOledLineTo(97,17);
+      OrbitOledMoveTo(94,32);
+      OrbitOledLineTo(100,17);
+    
+      OrbitOledMoveTo(28,17);
+      OrbitOledLineTo(22,11);
+      OrbitOledMoveTo(22,11);
+      OrbitOledLineTo(28,13);
+      OrbitOledMoveTo(28,13);
+      OrbitOledLineTo(27,6);
+      OrbitOledMoveTo(27,6);
+      OrbitOledLineTo(29,11);
+      OrbitOledMoveTo(29,11);
+      OrbitOledLineTo(31,8);
+      OrbitOledMoveTo(31,8);
+      OrbitOledLineTo(31,17);
+    
+      OrbitOledMoveTo(100,17);
+      OrbitOledLineTo(106,11);
+      OrbitOledMoveTo(106,11);
+      OrbitOledLineTo(100,13);
+      OrbitOledMoveTo(100,13);
+      OrbitOledLineTo(101,6);
+      OrbitOledMoveTo(101,6);
+      OrbitOledLineTo(99,11);
+      OrbitOledMoveTo(99,11);
+      OrbitOledLineTo(97,8);
+      OrbitOledMoveTo(97,8);
+      OrbitOledMoveTo(97,17);
+      OrbitOledMoveTo(100,22);
+      OrbitOledDrawString("-->");
+>>>>>>> Stashed changes
       if (gameInputState.buttons[0].isRising) {
         CurrentFightScene = FightScenes((int)CurrentFightScene+1);
       }
@@ -256,7 +320,7 @@ static void handleFightScene(int scene){
           OrbitOledMoveTo(0,22);
           OrbitOledDrawString("Go to Next Level");
           OrbitOledUpdate();
-          delay(1500);
+          delay(2000);
         }
         CurrentFightScene = Encounter;
         gameCurrentPage = Game;
@@ -272,13 +336,14 @@ static void handleFightScene(int scene){
       OrbitOledDrawString("RIP");
       if (gameInputState.buttons[0].isRising) {
         CurrentFightScene = Encounter;
-        gameCurrentPage = Welcome;
+        restart();
       }
      }
      OrbitOledMoveTo(100,22);
      OrbitOledDrawString("-->");
      break;
     }
+
   }
 }
 
@@ -542,7 +607,7 @@ static void animateMonster() {
     for (int i = 1; i < ActiveGame.curr_level.roomCount; i++) {
       if (!ActiveGame.curr_level.monsters[i].isDead) {
         if (ActiveGame.usr.pos.x - ActiveGame.curr_level.monsters[i].pos.x <= 3 &&
-            ActiveGame.usr.pos.y - ActiveGame.curr_level.monsters[i].pos.y <= 2) {
+            ActiveGame.usr.pos.y - ActiveGame.curr_level.monsters[i].pos.y <= 3) {
                 follow(ActiveGame.usr, &ActiveGame.curr_level.monsters[i], &ActiveGame.curr_level.rooms[i]);
         } else {
           roam(&ActiveGame.curr_level.rooms[i],&ActiveGame.curr_level.monsters[i]);
@@ -616,9 +681,31 @@ static void handlePageWelcome(){
 
 }
 
+static void restart() {
+  ActiveGame.curr_level = CreateLevel(1);
+  char buf[3];
+  int x, y;
+  do {
+    x = rand()%(ActiveGame.curr_level.rooms[0].pos[1].x-ActiveGame.curr_level.rooms[0].pos[0].x-2)+ActiveGame.curr_level.rooms[0].pos[0].x+1;
+    y = rand()%(ActiveGame.curr_level.rooms[0].pos[1].y-ActiveGame.curr_level.rooms[0].pos[0].y-2)+ActiveGame.curr_level.rooms[0].pos[0].y+1;
+  } while (x==ActiveGame.curr_level.monsters[0].pos.x && y==ActiveGame.curr_level.monsters[0].pos.y);
+  ActiveGame.usr = CreatePlayer(x,y);
+  gameCurrentPage = Game;
+  OrbitOledClearBuffer();
+  OrbitOledMoveTo(32, 12);
+  OrbitOledDrawString("Level: ");
+  OrbitOledDrawString(intToCharArray(buf, ActiveGame.curr_level.level));
+  OrbitOledMoveTo(28, 22);
+  OrbitOledDrawString("Loading...");
+  ActiveGame.passed=false;
+  OrbitOledUpdate();
+  delay(2000);
+}
+
 static void checkLevelUp() {
   if (gameInputState.buttons[0].isRising && ActiveGame.passed) {
     ActiveGame.curr_level = CreateLevel(ActiveGame.curr_level.level+1);
+    char buf[3];
     int x, y;
     do {
       x = rand()%(ActiveGame.curr_level.rooms[0].pos[1].x-ActiveGame.curr_level.rooms[0].pos[0].x-2)+ActiveGame.curr_level.rooms[0].pos[0].x+1;
@@ -627,8 +714,12 @@ static void checkLevelUp() {
     ActiveGame.usr = LevelUpPlayer(ActiveGame.usr,x,y);
     gameCurrentPage = Game;
     OrbitOledClearBuffer();
-    OrbitOledMoveTo(28, 12);
+    OrbitOledMoveTo(32, 12);
+    OrbitOledDrawString("Level: ");
+    OrbitOledDrawString(intToCharArray(buf, ActiveGame.curr_level.level));
+    OrbitOledMoveTo(28, 22);
     OrbitOledDrawString("Loading...");
+    ActiveGame.passed=false;
     OrbitOledUpdate();
     delay(3000);
   }
